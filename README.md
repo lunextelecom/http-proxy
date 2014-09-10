@@ -1,16 +1,16 @@
 http-proxy
 ==========
   Aggregate multiple webservice endpoint  
-  Loadbalancing
-  Authentication - Basic(TBD)
-  IP Filtering (TBD)
-  Logging + Metric
-  Monitoring 
+  Loadbalancing  
+  Authentication - Basic(TBD)  
+  IP Filtering (TBD)  
+  Logging + Metric  
+  Monitoring  
 
 ## Implemention and requirement
-  Netty and NIO
-  No storage in sql. Only depends on cassandra on runtime.
-  Simple configuration(yaml).  Configuration should be able to refresh without restart
+  Netty and NIO  
+  No storage in sql. Only depends on cassandra on runtime.  
+  Simple configuration(yaml).  Configuration should be able to refresh without restart  
 
 ## Closing of sockets
   End point determine the closing of socket, if neither endpoint are close, the connection will stay open for a period of 60 second.
@@ -36,9 +36,9 @@ default1.ping 	= GET /ping
 ```
 
 ## Logging
-  By default all message are log and metric are send to graphite.
+  By default all message are log and metric are send to graphite.  
   Specific url pattern can be specific to disable logging.  
-  graphite metric defaults to 'default' but can be more specific by using regular expression.
+  graphite metric defaults to 'default' but can be more specific by using regular expression.  
 
 ```
 #Logging
