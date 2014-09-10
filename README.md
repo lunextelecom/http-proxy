@@ -13,7 +13,7 @@ http-proxy
   Simple configuration(yaml).  Configuration should be able to refresh without restart  
 
 ## Closing of sockets
-  End point determine the closing of socket, if neither endpoint are close, the connection will stay open for a period of 60 second.
+  Request and endpoint determine the closing of socket, if neither endpoint are close, the connection will stay open for a period of 60 second.
 
 ## Aggregate multiple webservice endpoint
   As as frontend to different webservice.  This does not modify http parameter, body.  It will just passthru to servers behind in the configuration.  There will be default server and
