@@ -60,8 +60,10 @@ default1.ping 	= GET /ping
 
 ```  
 ##Monitoring
-Local accessible port to do the following:
-1. View statistic. # connections. # request handled. #list of endpoint(alive, down)
+  Local accessible port to do the following:  
+  # connections open per endpoint, url  
+  # request handled per endpoint, url  
+  # list of endpoint(alive, down)  + the count of request
 
   
 
