@@ -52,4 +52,10 @@ public class RoundRobinBalancingStrategy implements BalancingStrategy {
   public List<HostAndPort> geTargetAddresses() {
     return Collections.unmodifiableList(this.targets);
   }
+
+  @Override
+  public String toString() {
+    // TODO Auto-generated method stub
+    return "targets: " + targets.toString() + ", currentTarget: " + currentTarget.toString();
+  }
 }

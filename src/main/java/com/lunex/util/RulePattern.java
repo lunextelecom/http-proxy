@@ -57,4 +57,9 @@ public class RulePattern {
     this.balancingStrategy = balancingStrategy;
   }
 
+  @Override
+  public String toString() {
+    return "regexp: " + regexp + ", balancer: " + balancer.toString() + ", balancingStrategy: "
+        + balancingStrategy.toString();
+  }
 }

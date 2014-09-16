@@ -7,7 +7,7 @@ import com.lunex.util.RulePattern;
 
 public class RoutingRule {
   private List<RulePattern> listRulePattern;
-  
+
   public List<RulePattern> getListRulePattern() {
     return listRulePattern;
   }
@@ -19,7 +19,7 @@ public class RoutingRule {
   public RoutingRule(List<RulePattern> rulePattern) {
     this.listRulePattern = rulePattern;
   }
-  
+
   public void loadRoutingRule(String configFile) {
     listRulePattern = new ArrayList<RulePattern>();
 
@@ -49,5 +49,10 @@ public class RoutingRule {
 
   public void addRulePattern(RulePattern rule) {
     this.listRulePattern.add(rule);
-  }  
+  }
+
+  @Override
+  public String toString() {
+    return "listRulePattern: " + this.listRulePattern.toString();
+  }
 }

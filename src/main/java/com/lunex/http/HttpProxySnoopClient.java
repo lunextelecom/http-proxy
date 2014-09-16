@@ -27,7 +27,6 @@ public class HttpProxySnoopClient {
   private URI uri;
   private int port;
   private String host;
-  private String scheme;
   public CallbackHTTPVisitor callback;
   public Object msg;
   public Channel ch;
@@ -45,24 +44,14 @@ public class HttpProxySnoopClient {
    * @throws URISyntaxException
    * @throws SSLException
    */
-  private boolean preProcessURL() throws URISyntaxException, SSLException {
-    this.uri = new URI("http://" + url);
-    this.scheme = uri.getScheme();
-    this.host = uri.getHost();
-    this.port = uri.getPort();
-    if (port == -1) {
-      if ("http".equalsIgnoreCase(scheme)) {
-        port = 80;
-      } else if ("https".equalsIgnoreCase(scheme)) {
-        port = 443;
-      }
-    }
-
-    if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-      System.err.println("Only HTTP(S) is supported.");
+  private boolean preProcessURL() {
+    try {
+      String[] array = url.split(":");
+      this.host = array[0];
+      this.port = Integer.valueOf(array[1]);
+    } catch (Exception ex) {
       return false;
     }
-
     return true;
   }
 
@@ -71,9 +60,7 @@ public class HttpProxySnoopClient {
       if (!this.preProcessURL()) {
         return null;
       }
-    } catch (URISyntaxException ex) {
-      throw ex;
-    } catch (SSLException ex) {
+    } catch (Exception ex) {
       throw ex;
     }
 

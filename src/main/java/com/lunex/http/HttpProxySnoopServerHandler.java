@@ -41,7 +41,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
   private RoutingRule routingRule;
   private LastHttpContent trailer;
   private RulePattern routingRulePattern;
-  
+
   private HttpRequest request;
   private DefaultHttpResponse defaultHttpResponse;
   private DefaultLastHttpContent defaultLastHttpContent;
@@ -60,11 +60,12 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
 
   @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
-    // ctx.flush();
     // write response
     if (!writeResponse(trailer, ctx)) {
       // If keep-alive is off, close the connection once the content is fully written.
       ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+    } else {
+      ctx.flush();
     }
   }
 
@@ -85,6 +86,11 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
         // TODO something with jsonObject and return response
         final CountDownLatch responseWaiter = new CountDownLatch(1);
         HostAndPort target = routingRulePattern.getBalancingStrategy().selectTarget();
+        if (target == null) {
+          logger.error("target is null");
+          responseContentBuilder.append("Target is null");
+          return;
+        }
         HttpProxySnoopClient client =
             new HttpProxySnoopClient(target.getHost() + ":" + target.getPort(),
                 new CallbackHTTPVisitor() {
@@ -92,14 +98,14 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
                   public void doJob(ChannelHandlerContext ctx, HttpObject msg) {
                     // TODO Auto-generated method stub
                     super.doJob(ctx, msg);
-                    System.out.println(msg.toString());
+                    logger.info(msg.toString());
                     responseWaiter.countDown();
                     if (msg instanceof DefaultHttpResponse) {
-                      defaultHttpResponse = (DefaultHttpResponse)msg;
+                      defaultHttpResponse = (DefaultHttpResponse) msg;
                       return;
                     }
                     if (msg instanceof DefaultLastHttpContent) {
-                      defaultLastHttpContent = (DefaultLastHttpContent)msg;
+                      defaultLastHttpContent = (DefaultLastHttpContent) msg;
                     }
                     if (msg instanceof HttpContent) {
                       HttpContent httpContent = (HttpContent) msg;
@@ -114,23 +120,21 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
         try {
           client.submitRequest(request);
         } catch (Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          logger.error(e.getMessage());
         }
         try {
           responseWaiter.await();
-          System.out.println("Shutdown client");
           client.shutdown();
+          logger.info("Shutdown client");
         } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          logger.error(e.getMessage());
         }
       }
     }
   }
 
   private boolean writeResponse(HttpObject currentObj, ChannelHandlerContext ctx) {
-    System.out.println("Write response");
+    logger.info("Write response");
     // Decide whether to close the connection or not.
     boolean keepAlive = isKeepAlive(request);
 
@@ -140,7 +144,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
             : BAD_REQUEST, Unpooled.copiedBuffer(responseContentBuilder.toString(),
             CharsetUtil.UTF_8));
 
-     response.headers().set(CONTENT_TYPE, defaultHttpResponse.headers().get("Content-Type"));
+    response.headers().set(CONTENT_TYPE, defaultHttpResponse.headers().get("Content-Type"));
 
     if (keepAlive) {
       // Add 'Content-Length' header only for a keep-alive connection.
