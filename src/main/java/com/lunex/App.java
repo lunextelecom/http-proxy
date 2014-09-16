@@ -1,8 +1,12 @@
 package com.lunex;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +16,7 @@ import com.lunex.util.Configuration;
 
 /**
  * Main Class
+ * 
  * @author BaoLe
  *
  */
@@ -24,13 +29,27 @@ public class App {
 
   public static void main(String[] args) {
 
+    App.loadLog4j();
+
     App.loadRoutingRule();
 
     App.startHttpProxy();
   }
 
+  public static void loadLog4j() {
+    // load log properties
+    Properties props = new Properties();
+    try {
+      props.load(new FileInputStream("log4j.properties"));
+      PropertyConfigurator.configure(props);
+    } catch (IOException e2) {
+      e2.printStackTrace();
+    }
+  }
+
   /**
    * Load routing rule from configuration.yaml
+   * 
    * @author BaoLe
    */
   public static void loadRoutingRule() {
@@ -57,6 +76,7 @@ public class App {
 
   /**
    * Start netty server as HTTP proxy
+   * 
    * @author BaoLe
    */
   public static void startHttpProxy() {

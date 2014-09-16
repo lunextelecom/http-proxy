@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.lunex.util.Configuration;
 import com.lunex.util.RoutingRulePattern;
 
 /**
- * Class RoutingRule
- * Contain list routing rule
+ * Class RoutingRule Contain list routing rule
+ * 
  * @author BaoLe
  *
  */
@@ -34,6 +33,13 @@ public class RoutingRule {
     this.listRulePattern = rulePattern;
   }
 
+  /**
+   * Load list routing rule pattern from list rule get from config
+   * 
+   * @author BaoLe
+   * @param listRule
+   * @throws Exception
+   */
   public void loadRoutingRule(List<Map<String, Object>> listRule) throws Exception {
     try {
       listRulePattern = new ArrayList<RoutingRulePattern>();
@@ -54,6 +60,12 @@ public class RoutingRule {
     }
   }
 
+  /**
+   * Delete rule pattern from list by rule
+   * 
+   * @author BaoLe
+   * @param rule
+   */
   public void deleteRulePattern(RoutingRulePattern rule) {
     for (int i = 0; i < listRulePattern.size(); i++) {
       if (rule.getRegexp() == listRulePattern.get(i).getRegexp()) {
@@ -63,6 +75,12 @@ public class RoutingRule {
     }
   }
 
+  /**
+   * Delete rule pattern from list by regular expression
+   * 
+   * @author BaoLe
+   * @param regexp
+   */
   public void deleteRulePattern(String regexp) {
     for (int i = 0; i < listRulePattern.size(); i++) {
       if (regexp == listRulePattern.get(i).getRegexp()) {
@@ -72,6 +90,12 @@ public class RoutingRule {
     }
   }
 
+  /**
+   * Add new rule pattern
+   * 
+   * @author BaoLe
+   * @param rule
+   */
   public void addRulePattern(RoutingRulePattern rule) {
     this.listRulePattern.add(rule);
   }
