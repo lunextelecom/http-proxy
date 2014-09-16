@@ -3,8 +3,6 @@ package com.lunex.http;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lunex.rule.RoutingRule;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -23,13 +21,11 @@ public class HttpProxySnoopServer {
   private Channel channel;
   private EventLoopGroup bossGroup;
   private EventLoopGroup workerGroup;
-  private RoutingRule routingRule;
 
   public int numThread = 1;
 
-  public HttpProxySnoopServer(int port, RoutingRule routingRule) {
+  public HttpProxySnoopServer(int port) {
     this.port = port;
-    this.routingRule = routingRule;
   }
 
   /**
@@ -46,7 +42,7 @@ public class HttpProxySnoopServer {
       bootStrap = new ServerBootstrap();
       bootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
           .handler(new LoggingHandler(LogLevel.INFO))
-          .childHandler(new HttpProxySnoopServerInitializer(routingRule));
+          .childHandler(new HttpProxySnoopServerInitializer());
 
       channel = bootStrap.bind(port).sync().channel();
 

@@ -26,7 +26,10 @@ public class App {
 
   public static Map<String, Object> config;
   public static RoutingRule routingRule;
+  public static HttpProxySnoopServer server;
 
+  public static int a = 1;
+  
   public static void main(String[] args) {
 
     App.loadLog4j();
@@ -36,6 +39,11 @@ public class App {
     App.startHttpProxy();
   }
 
+  /**
+   * Load log4j configuration
+   * 
+   * @author BaoLe
+   */
   public static void loadLog4j() {
     // load log properties
     Properties props = new Properties();
@@ -84,7 +92,7 @@ public class App {
       logger.error("Can not load config or config invalid", new NullPointerException());
       return;
     }
-    final HttpProxySnoopServer server = new HttpProxySnoopServer(8080, routingRule);
+    server = new HttpProxySnoopServer(8080);
     Thread thread = new Thread(new Runnable() {
 
       public void run() {

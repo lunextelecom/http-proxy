@@ -31,14 +31,13 @@ import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lunex.rule.RoutingRule;
+import com.lunex.App;
 import com.lunex.util.HostAndPort;
 import com.lunex.util.RoutingRulePattern;
 
 public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Object> {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
-  private RoutingRule routingRule;
   private LastHttpContent trailer;
   private RoutingRulePattern routingRulePattern;
 
@@ -47,8 +46,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
   private DefaultLastHttpContent defaultLastHttpContent;
   private final StringBuilder responseContentBuilder = new StringBuilder();
 
-  public HttpProxySnoopServerHandler(RoutingRule routingRule) {
-    this.routingRule = routingRule;
+  public HttpProxySnoopServerHandler() {
   }
 
 
@@ -173,8 +171,8 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
   }
 
   public RoutingRulePattern selectRulePattern(HttpRequest request) {
-    for (int i = 0; i < routingRule.getListRulePattern().size(); i++) {
-      RoutingRulePattern rule = routingRule.getListRulePattern().get(i);
+    for (int i = 0; i < App.routingRule.getListRulePattern().size(); i++) {
+      RoutingRulePattern rule = App.routingRule.getListRulePattern().get(i);
       Pattern r = Pattern.compile(rule.getRegexp());
       Matcher m = r.matcher(request.getUri());
       if (m.find())
