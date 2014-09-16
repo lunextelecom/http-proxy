@@ -9,19 +9,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.lunex.util.HostAndPort;
 
 /**
- * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
+ * Class RoundRobinBalacingStrategy implement IBalancingStrategy
+ * 
+ * @author BaoLe
  */
 public class RoundRobinBalancingStrategy implements IBalancingStrategy {
-
-  // configuration
-  // --------------------------------------------------------------------------------------------------
 
   private final List<HostAndPort> targets;
   private final AtomicInteger currentTarget;
 
-  // constructors
-  // ---------------------------------------------------------------------------------------------------
-
+  /**
+   * Constructor
+   * 
+   * @param targets
+   */
   public RoundRobinBalancingStrategy(List<HostAndPort> targets) {
     if ((targets == null) || targets.isEmpty()) {
       throw new IllegalArgumentException("Target list cannot be null or empty");
@@ -30,8 +31,6 @@ public class RoundRobinBalancingStrategy implements IBalancingStrategy {
     this.currentTarget = new AtomicInteger(0);
   }
 
-  // BalancingStrategy
-  // ----------------------------------------------------------------------------------------------
   public HostAndPort selectTarget() {
     int currentTarget;
     synchronized (this.currentTarget) {
@@ -41,7 +40,6 @@ public class RoundRobinBalancingStrategy implements IBalancingStrategy {
         this.currentTarget.set(0);
       }
     }
-
     return this.targets.get(currentTarget);
   }
 
@@ -55,7 +53,6 @@ public class RoundRobinBalancingStrategy implements IBalancingStrategy {
 
   @Override
   public String toString() {
-    // TODO Auto-generated method stub
     return "targets: " + targets.toString() + ", currentTarget: " + currentTarget.toString();
   }
 }
