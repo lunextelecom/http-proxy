@@ -1,8 +1,12 @@
 package com.lunex.rule;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import com.lunex.util.Configuration;
 import com.lunex.util.RulePattern;
 
 public class RoutingRule {
@@ -16,16 +20,31 @@ public class RoutingRule {
     this.listRulePattern = listRulePattern;
   }
 
+  public RoutingRule() {
+
+  }
+
   public RoutingRule(List<RulePattern> rulePattern) {
     this.listRulePattern = rulePattern;
   }
 
-  public void loadRoutingRule(String configFile) {
-    listRulePattern = new ArrayList<RulePattern>();
-
-    RulePattern rule = new RulePattern();
-    for (int i = 0; i < 10; i++) {
-      listRulePattern.add(rule);
+  public void loadRoutingRule(List<Map<String, Object>> listRule) throws Exception {
+    try {
+      listRulePattern = new ArrayList<RulePattern>();
+      RulePattern rule = null;
+      for (int i = 0; i < listRule.size(); i++) {
+        Map<String, Object> ruleMap = listRule.get(i);
+        rule =
+            new RulePattern(ruleMap.get("Regexp").toString(),
+                Configuration.MAP_BALANCER_STATEGY.get(ruleMap.get("Balancer").toString()));
+        String targetStr = (String) ruleMap.get("Target");
+        String[] arrayTarget = targetStr.split(",");
+        List<String> targetStrs = (Arrays.asList(arrayTarget));
+        rule.createBalancingStrategy(targetStrs);
+        listRulePattern.add(rule);
+      }
+    } catch (Exception e) {
+      throw e;
     }
   }
 
