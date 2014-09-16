@@ -11,8 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lunex.http.HttpProxySnoopServer;
+import com.lunex.rule.LoggingRule;
 import com.lunex.rule.RoutingRule;
 import com.lunex.util.Configuration;
+import com.lunex.util.Constants.EBalancingStrategy;
 
 /**
  * Main Class
@@ -26,15 +28,18 @@ public class App {
 
   public static Map<String, Object> config;
   public static RoutingRule routingRule;
+  public static LoggingRule loggingRule;
   public static HttpProxySnoopServer server;
 
   public static int a = 1;
-  
+
   public static void main(String[] args) {
 
     App.loadLog4j();
 
     App.loadRoutingRule();
+    
+    App.loadLoggingRule();
 
     App.startHttpProxy();
   }
@@ -79,6 +84,27 @@ public class App {
     } catch (Exception e) {
       logger.error(e.getMessage());
       routingRule = null;
+    }
+  }
+
+  public static void loadLoggingRule() {
+    if (config == null) {
+      try {
+        config = Configuration.loadYamlFile("configuration.yaml");
+      } catch (Exception e1) {
+        logger.error(e1.getMessage());
+      }
+      if (config == null) {
+        return;
+      }
+    }
+    List<Map<String, Object>> loggingRuleArray = (List<Map<String, Object>>) config.get("Logging");
+    try {
+      loggingRule = new LoggingRule();
+      loggingRule.loadLoggingRule(loggingRuleArray);
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+      loggingRule = null;
     }
   }
 

@@ -1,7 +1,25 @@
+#Routing rule for Aggregate multiple webservice endpoint
 Routing:
   - Regexp: /didv2/dids?.
     Balancer: RR
     Target: 10.9.9.62:8090
   - Regexp: /atsys/ws/json.
     Balancer: RR
-    Target: 10.9.9.61:8803,  10.9.9.61:8803
+    Target: 10.9.9.61:8803,10.9.9.61:8803
+  - Regexp: /health?.
+    Balancer: RR
+    Target: 10.9.9.62:9004,10.9.9.62:9004
+    
+#Logging
+#URL(regex) verb    = options
+#Example
+#.*  GET             = on #log request only no header and no response
+#.*                  = req, req_header, req_body, resp_body 
+#^/login/.*          = off #do not login authentication request
+Logging:
+  - Regexp: /didv2/dids?.
+    Option: 'on'
+  - Regexp: /atsys/ws/json.
+    Option: 'off'
+  - Regexp: /health?.
+    Option: req, req_header, req_body, resp_body
