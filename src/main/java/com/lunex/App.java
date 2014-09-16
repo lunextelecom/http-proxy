@@ -14,7 +14,6 @@ import com.lunex.http.HttpProxySnoopServer;
 import com.lunex.rule.LoggingRule;
 import com.lunex.rule.RoutingRule;
 import com.lunex.util.Configuration;
-import com.lunex.util.Constants.EBalancingStrategy;
 
 /**
  * Main Class
@@ -30,8 +29,6 @@ public class App {
   public static RoutingRule routingRule;
   public static LoggingRule loggingRule;
   public static HttpProxySnoopServer server;
-
-  public static int a = 1;
 
   public static void main(String[] args) {
 
