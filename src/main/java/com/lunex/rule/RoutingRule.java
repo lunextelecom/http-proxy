@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.lunex.util.Configuration;
+import com.lunex.util.Constants;
+import com.lunex.util.LoggingRulePattern;
 import com.lunex.util.RoutingRulePattern;
 
 /**
@@ -100,6 +102,24 @@ public class RoutingRule {
     this.listRulePattern.add(rule);
   }
 
+  /**
+   * Update rule pattern
+   * 
+   * @author BaoLe
+   * @param rule
+   */
+  public void updateRulePattern(RoutingRulePattern rule) {
+    if (rule == null || Constants.EMPTY_STRING.equals(rule.getRegexp()) || rule.getBalancingStrategy() == null) {
+      return;
+    }
+    for (int i = 0; i < listRulePattern.size(); i++) {
+      if (rule.getRegexp().equals(listRulePattern.get(i).getRegexp())) {
+        listRulePattern.set(i, rule);
+        break;
+      }
+    }
+  }
+  
   @Override
   public String toString() {
     return "listRulePattern: " + this.listRulePattern.toString();

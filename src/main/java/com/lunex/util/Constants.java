@@ -2,6 +2,8 @@ package com.lunex.util;
 
 public class Constants {
 
+  public static String EMPTY_STRING = "";
+  
   public static enum EBalancingStrategy {
     ROUND_ROBIN
   }
