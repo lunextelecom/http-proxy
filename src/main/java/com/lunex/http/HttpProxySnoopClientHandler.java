@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpObject;
@@ -26,7 +27,7 @@ public class HttpProxySnoopClientHandler extends SimpleChannelInboundHandler<Htt
 
   @Override
   public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
-    if (msg instanceof DefaultLastHttpContent || msg instanceof DefaultHttpResponse) {
+    if (msg instanceof DefaultLastHttpContent || msg instanceof DefaultHttpContent || msg instanceof DefaultHttpResponse) {
       if (callback != null) {
         callback.doJob(ctx, msg);
       }

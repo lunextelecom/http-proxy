@@ -22,6 +22,13 @@ public class App {
     targets.add("10.9.9.62:8090");
     rule.createBalancingStrategy(targets);
     listRulePattern.add(rule);
+    
+    rule = new RulePattern("/atsys/ws/json.", EBalancingStrategy.ROUND_ROBIN);
+    targets = new ArrayList<String>();
+    targets.add("10.9.9.61:8803");
+    targets.add("10.9.9.61:8803");
+    rule.createBalancingStrategy(targets);
+    listRulePattern.add(rule);
 
     RoutingRule routingRule = new RoutingRule(listRulePattern);
 
