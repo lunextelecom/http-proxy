@@ -6,9 +6,10 @@ import java.util.List;
 import com.lunex.util.HostAndPort;
 
 /**
- * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
+ * Inteface for Balancing Strategy
+ * @author BaoLe
  */
-public interface BalancingStrategy {
+public interface IBalancingStrategy {
 
   HostAndPort selectTarget();
 

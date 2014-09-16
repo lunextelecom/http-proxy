@@ -6,9 +6,9 @@ import java.util.List;
 import com.lunex.util.HostAndPort;
 
 /**
- * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
+ * @author BaoLe
  */
-public interface LoadBalancer {
+public interface ILoadBalancer {
 
     boolean init();
 
@@ -18,5 +18,5 @@ public interface LoadBalancer {
 
     List<HostAndPort> getTargetAddresses();
 
-    BalancingStrategy getBalancingStrategy();
+    IBalancingStrategy getBalancingStrategy();
 }

@@ -18,7 +18,7 @@ import com.lunex.util.HostAndPort;
 /**
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
-public class DefaultLoadBalancer implements LoadBalancer {
+public class DefaultLoadBalancer implements ILoadBalancer {
 
     // constants ------------------------------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
 
     private final String id;
     private final HostAndPort balancerAddress;
-    private final BalancingStrategy balancingStrategy;
+    private final IBalancingStrategy balancingStrategy;
     private final Executor bossPool;
     private final Executor workerPool;
     private int timeoutInMillis;
@@ -45,7 +45,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
 
     // constructors ---------------------------------------------------------------------------------------------------
 
-    public DefaultLoadBalancer(String id, HostAndPort balancerAddress, BalancingStrategy balancingStrategy) {
+    public DefaultLoadBalancer(String id, HostAndPort balancerAddress, IBalancingStrategy balancingStrategy) {
         if (id == null) {
             throw new IllegalArgumentException("ID cannot be null");
         }
@@ -68,7 +68,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
         this.timeoutInMillis = TIMEOUT_IN_MILLIS;
     }
 
-    public DefaultLoadBalancer(String id, HostAndPort balancerAddress, BalancingStrategy balancingStrategy,
+    public DefaultLoadBalancer(String id, HostAndPort balancerAddress, IBalancingStrategy balancingStrategy,
                                Executor bossPool, Executor workerPool) {
         if (id == null) {
             throw new IllegalArgumentException("ID cannot be null");
@@ -161,7 +161,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
         return this.balancingStrategy.geTargetAddresses();
     }
 
-    public BalancingStrategy getBalancingStrategy() {
+    public IBalancingStrategy getBalancingStrategy() {
         return this.balancingStrategy;
     }
 

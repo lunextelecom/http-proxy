@@ -3,23 +3,28 @@ package com.lunex.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lunex.balancing.BalancingStrategy;
+import com.lunex.balancing.IBalancingStrategy;
 import com.lunex.balancing.RoundRobinBalancingStrategy;
 import com.lunex.util.Constants.EBalancingStrategy;
 
-public class RulePattern {
+/**
+ * Rule for Routing
+ * @author BaoLe
+ *
+ */
+public class RoutingRulePattern {
 
   private String regexp;
 
   private EBalancingStrategy balancer;
 
-  private BalancingStrategy balancingStrategy;
+  private IBalancingStrategy balancingStrategy;
 
-  public RulePattern() {
+  public RoutingRulePattern() {
 
   }
 
-  public RulePattern(String regexp, EBalancingStrategy balancer) {
+  public RoutingRulePattern(String regexp, EBalancingStrategy balancer) {
     this.regexp = regexp;
     this.balancer = balancer;
   }
@@ -49,11 +54,11 @@ public class RulePattern {
     this.regexp = regexp;
   }
 
-  public BalancingStrategy getBalancingStrategy() {
+  public IBalancingStrategy getBalancingStrategy() {
     return balancingStrategy;
   }
 
-  public void setBalancingStrategy(BalancingStrategy balancingStrategy) {
+  public void setBalancingStrategy(IBalancingStrategy balancingStrategy) {
     this.balancingStrategy = balancingStrategy;
   }
 

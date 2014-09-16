@@ -11,7 +11,7 @@ import com.lunex.util.HostAndPort;
 /**
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
-public class RoundRobinBalancingStrategy implements BalancingStrategy {
+public class RoundRobinBalancingStrategy implements IBalancingStrategy {
 
   // configuration
   // --------------------------------------------------------------------------------------------------

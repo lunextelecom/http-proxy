@@ -33,14 +33,14 @@ import org.slf4j.LoggerFactory;
 
 import com.lunex.rule.RoutingRule;
 import com.lunex.util.HostAndPort;
-import com.lunex.util.RulePattern;
+import com.lunex.util.RoutingRulePattern;
 
 public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Object> {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
   private RoutingRule routingRule;
   private LastHttpContent trailer;
-  private RulePattern routingRulePattern;
+  private RoutingRulePattern routingRulePattern;
 
   private HttpRequest request;
   private DefaultHttpResponse defaultHttpResponse;
@@ -172,9 +172,9 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
     return keepAlive;
   }
 
-  public RulePattern selectRulePattern(HttpRequest request) {
+  public RoutingRulePattern selectRulePattern(HttpRequest request) {
     for (int i = 0; i < routingRule.getListRulePattern().size(); i++) {
-      RulePattern rule = routingRule.getListRulePattern().get(i);
+      RoutingRulePattern rule = routingRule.getListRulePattern().get(i);
       Pattern r = Pattern.compile(rule.getRegexp());
       Matcher m = r.matcher(request.getUri());
       if (m.find())

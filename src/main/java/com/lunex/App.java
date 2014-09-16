@@ -10,6 +10,11 @@ import com.lunex.http.HttpProxySnoopServer;
 import com.lunex.rule.RoutingRule;
 import com.lunex.util.Configuration;
 
+/**
+ * Main Class
+ * @author BaoLe
+ *
+ */
 public class App {
 
   static final Logger logger = LoggerFactory.getLogger(App.class);
@@ -24,6 +29,10 @@ public class App {
     App.startHttpProxy();
   }
 
+  /**
+   * Load routing rule from configuration.yaml
+   * @author BaoLe
+   */
   public static void loadRoutingRule() {
     Configuration.initBalancerStrategy();
     config = null;
@@ -46,6 +55,10 @@ public class App {
     }
   }
 
+  /**
+   * Start netty server as HTTP proxy
+   * @author BaoLe
+   */
   public static void startHttpProxy() {
     if (routingRule == null) {
       logger.error("Can not load config or config invalid", new NullPointerException());
