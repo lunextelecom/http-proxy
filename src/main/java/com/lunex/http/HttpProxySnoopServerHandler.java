@@ -83,6 +83,9 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
 
         // TODO something with jsonObject and return response
         final CountDownLatch responseWaiter = new CountDownLatch(1);
+        if (routingRulePattern == null) {
+          return;
+        }
         HostAndPort target = routingRulePattern.getBalancingStrategy().selectTarget();
         if (target == null) {
           logger.error("target is null");
