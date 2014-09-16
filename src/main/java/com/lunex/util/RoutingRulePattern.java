@@ -33,7 +33,7 @@ public class RoutingRulePattern {
     List<HostAndPort> targets = new ArrayList<HostAndPort>();
     String targetStr = null;
     for (int i = 0; i < targetStrs.size(); i++) {
-      targetStr = targetStrs.get(i);
+      targetStr = targetStrs.get(i).trim();
       String[] array = targetStr.split(":");
       targets.add(new HostAndPort(array[0], Integer.valueOf(array[1])));
     }
