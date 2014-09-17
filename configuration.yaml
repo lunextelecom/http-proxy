@@ -13,7 +13,7 @@ Routing:
 #URL(regex) verb    = options
 #Example:
 #.*  GET             = on #log request only no header and no response
-#.*                  = req, req_header, req_body, resp_body 
+#.*                  = request, request_header, request_body, response_body 
 #^/login/.*          = off #do not login authentication request
 Logging:
   - Regexp: /didv2/dids?.
@@ -21,7 +21,7 @@ Logging:
     Option: 'on'
   - Regexp: /didv2/dids?.
     Verb: NONE
-    Option: req, req_header, req_body, resp_body
+    Option: request, request_header, request_body, response_body
   - Regexp: /atsys/ws/json.
     Verb: GET
     Option: 'off'#Metric naming

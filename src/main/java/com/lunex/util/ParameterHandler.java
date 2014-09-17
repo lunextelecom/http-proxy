@@ -15,7 +15,7 @@ public class ParameterHandler {
   public static void getPropertiesValues() throws IOException {
 
     Properties prop = new Properties();
-    String propFileName = "config.properties";
+    String propFileName = "db.properties";
 
     InputStream inputStream = new FileInputStream(propFileName);
     prop.load(inputStream);

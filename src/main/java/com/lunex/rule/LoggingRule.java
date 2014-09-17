@@ -141,7 +141,7 @@ public class LoggingRule {
       Matcher m = r.matcher(request.getUri());
       if (m.find())
         if (rule.getVerb() != EVerb.NONE) {
-          if (rule.getVerb().equals(request.getMethod().toString())) {
+          if (rule.getVerb().toString().equals(request.getMethod().toString())) {
             return rule;
           }
         }

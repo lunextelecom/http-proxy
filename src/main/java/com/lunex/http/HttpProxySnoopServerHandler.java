@@ -8,12 +8,12 @@ import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+import java.net.SocketAddress;
 import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -34,7 +34,9 @@ import org.slf4j.LoggerFactory;
 import com.lunex.App;
 import com.lunex.util.HostAndPort;
 import com.lunex.util.LogObject;
+import com.lunex.util.LoggingProcessor;
 import com.lunex.util.RoutingRulePattern;
+import com.lunex.util.Constants.EVerb;
 
 public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
@@ -48,9 +50,8 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
   private final StringBuilder responseContentBuilder = new StringBuilder();
 
   private LogObject logObject;
-  
-  public HttpProxySnoopServerHandler() {
-  }
+
+  public HttpProxySnoopServerHandler() {}
 
 
   @Override
@@ -68,6 +69,8 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     } else {
       ctx.flush();
     }
+
+    LoggingProcessor.writeLog(logObject, App.loggingRule);
   }
 
   @Override
@@ -78,7 +81,11 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       responseContentBuilder.setLength(0);
       logObject = new LogObject();
       logObject.setRequest(this.request);
-      logObject.setRequestHeaders(((HttpRequest) msg).headers());      
+      logObject.setRequestHeaders(((HttpRequest) msg).headers());
+      logObject.setMethod(EVerb.valueOf(this.request.getMethod().toString()));
+      Channel channel = ctx.channel();
+      SocketAddress address = channel.remoteAddress();
+      logObject.setClient(address.toString());
     }
 
     if (msg instanceof HttpContent) {
@@ -101,6 +108,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
           responseContentBuilder.append("Target is null");
           return;
         }
+        logObject.setTarget(target.getHost() + ":" + target.getPort());
         HttpProxySnoopClient client =
             new HttpProxySnoopClient(target.getHost() + ":" + target.getPort(),
                 new CallbackHTTPVisitor() {

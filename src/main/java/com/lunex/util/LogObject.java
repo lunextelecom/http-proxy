@@ -14,6 +14,7 @@ public class LogObject {
   private HttpHeaders requestHeaders;
   private HttpContent responseContent;
   private EVerb method;
+  private String client;
 
   public String getTarget() {
     return target;
@@ -61,6 +62,14 @@ public class LogObject {
 
   public void setMethod(EVerb method) {
     this.method = method;
+  }
+
+  public String getClient() {
+    return client;
+  }
+
+  public void setClient(String client) {
+    this.client = client;
   }
 
 }
