@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.lunex.App;
 import com.lunex.util.HostAndPort;
+import com.lunex.util.LogObject;
 import com.lunex.util.RoutingRulePattern;
 
 public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
@@ -46,6 +47,8 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
   private DefaultLastHttpContent defaultLastHttpContent;
   private final StringBuilder responseContentBuilder = new StringBuilder();
 
+  private LogObject logObject;
+  
   public HttpProxySnoopServerHandler() {
   }
 
@@ -73,9 +76,15 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       this.request = (HttpRequest) msg;
       routingRulePattern = App.routingRule.selectRulePattern(this.request);
       responseContentBuilder.setLength(0);
+      logObject = new LogObject();
+      logObject.setRequest(this.request);
+      logObject.setRequestHeaders(((HttpRequest) msg).headers());      
     }
 
     if (msg instanceof HttpContent) {
+      HttpContent httpContent = (HttpContent) msg;
+      logObject.setRequestContent(httpContent);
+      
       if (msg instanceof LastHttpContent) {
         trailer = (LastHttpContent) msg;
         if (!trailer.trailingHeaders().isEmpty()) {
@@ -109,6 +118,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
                       defaultLastHttpContent = (DefaultLastHttpContent) msg;
                     }
                     if (msg instanceof HttpContent) {
+                      logObject.setResponseContent(defaultLastHttpContent);
                       HttpContent httpContent = (HttpContent) msg;
                       ByteBuf content = httpContent.content();
                       if (content.isReadable()) {

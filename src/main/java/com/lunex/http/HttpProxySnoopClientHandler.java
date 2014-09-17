@@ -8,7 +8,10 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.LastHttpContent;
 
 public class HttpProxySnoopClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
@@ -28,9 +31,9 @@ public class HttpProxySnoopClientHandler extends SimpleChannelInboundHandler<Htt
   @Override
   public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
     logger.info(msg.toString());
-    if (msg instanceof DefaultLastHttpContent 
-        || msg instanceof DefaultHttpContent
-        || msg instanceof DefaultHttpResponse) {
+    if (msg instanceof LastHttpContent 
+        || msg instanceof HttpContent
+        || msg instanceof HttpResponse) {
       if (callback != null) {
         callback.doJob(ctx, msg);
       }
