@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 import com.lunex.util.Configuration;
 import com.lunex.util.Constants;
-import com.lunex.util.RoutingRulePattern;
 
 /**
  * Class RoutingRule Contain list routing rule

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.lunex.App;
 import com.lunex.rule.LoggingRule;
+import com.lunex.rule.LoggingRulePattern;
 import com.lunex.util.Constants.ELoggingOption;
 
 

@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import com.lunex.util.Constants;
 import com.lunex.util.Constants.EVerb;
-import com.lunex.util.LoggingRulePattern;
 
 /**
  * List rule for logging

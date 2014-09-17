@@ -1,10 +1,12 @@
-package com.lunex.util;
+package com.lunex.rule;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.lunex.balancing.IBalancingStrategy;
 import com.lunex.balancing.RoundRobinBalancingStrategy;
+import com.lunex.util.Constants;
+import com.lunex.util.HostAndPort;
 import com.lunex.util.Constants.EBalancingStrategy;
 
 /**
