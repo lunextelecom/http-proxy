@@ -9,17 +9,37 @@ Routing:
   - Regexp: /health?.
     Balancer: RR
     Target: 10.9.9.62:9004,10.9.9.62:9004
-    
 #Logging
 #URL(regex) verb    = options
-#Example
+#Example:
 #.*  GET             = on #log request only no header and no response
 #.*                  = req, req_header, req_body, resp_body 
 #^/login/.*          = off #do not login authentication request
 Logging:
   - Regexp: /didv2/dids?.
+    Verb: GET
     Option: 'on'
-  - Regexp: /atsys/ws/json.
-    Option: 'off'
-  - Regexp: /health?.
+  - Regexp: /didv2/dids?.
+    Verb: NONE
     Option: req, req_header, req_body, resp_body
+  - Regexp: /atsys/ws/json.
+    Verb: GET
+    Option: 'off'#Metric naming
+#URL(regex) verb = metric
+#accessible variable
+#server, verb, response_code
+#Example:
+#.*                  = {server}.{verb}_request_{response_code} 
+#^/products/.* GET   = {server}.list_products
+#^/products/.* POST  = {server}.create_product
+#eg. 25ms get request to catalog1 catalog1.get_request_200 25
+Metric:
+  - Regexp: /didv2/dids?.
+    Verb: GET
+    Metric: target.get_request
+  - Regexp: /atsys/ws/json.
+    Verb: GET
+    Metric: target.get_request
+  - Regexp: /health?.
+    Verb: GET
+    Metric: target.get_request_health

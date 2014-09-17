@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import com.lunex.http.HttpProxySnoopServer;
 import com.lunex.rule.LoggingRule;
 import com.lunex.rule.RoutingRule;
+import com.lunex.util.CassandraRepository;
 import com.lunex.util.Configuration;
+import com.lunex.util.ParameterHandler;
 
 /**
  * Main Class
@@ -29,9 +31,12 @@ public class App {
   public static RoutingRule routingRule;
   public static LoggingRule loggingRule;
   public static HttpProxySnoopServer server;
+  public static CassandraRepository dbResource;
 
   public static void main(String[] args) {
 
+    App.loadCassandraResource();
+    
     App.loadLog4j();
 
     App.loadRoutingRule();
@@ -41,6 +46,20 @@ public class App {
     App.startHttpProxy();
   }
 
+  /**
+   * Init cassandra data resource
+   * 
+   * @author BaoLe
+   */
+  public static void loadCassandraResource() {
+    try {
+      ParameterHandler.getPropertiesValues();
+      dbResource = CassandraRepository.getInstance().initConnectionCassandraDB(ParameterHandler.DB_HOST, ParameterHandler.DB_DBNAME);
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+    }
+  }
+  
   /**
    * Load log4j configuration
    * 
@@ -53,7 +72,7 @@ public class App {
       props.load(new FileInputStream("log4j.properties"));
       PropertyConfigurator.configure(props);
     } catch (IOException e2) {
-      e2.printStackTrace();
+      logger.error(e2.getMessage());
     }
   }
 

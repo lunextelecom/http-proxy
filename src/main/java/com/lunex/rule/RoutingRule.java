@@ -1,10 +1,15 @@
 package com.lunex.rule;
 
+import io.netty.handler.codec.http.HttpRequest;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.lunex.App;
 import com.lunex.util.Configuration;
 import com.lunex.util.Constants;
 import com.lunex.util.LoggingRulePattern;
@@ -118,6 +123,24 @@ public class RoutingRule {
         break;
       }
     }
+  }
+  
+  /**
+   * Get rule pattern from http request
+   * 
+   * @author BaoLe
+   * @param request
+   * @return
+   */
+  public RoutingRulePattern selectRulePattern(HttpRequest request) {
+    for (int i = 0; i < listRulePattern.size(); i++) {
+      RoutingRulePattern rule = listRulePattern.get(i);
+      Pattern r = Pattern.compile(rule.getRegexp());
+      Matcher m = r.matcher(request.getUri());
+      if (m.find())
+        return rule;
+    }
+    return null;
   }
   
   @Override

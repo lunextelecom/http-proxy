@@ -3,6 +3,8 @@ package com.lunex.util;
 import java.util.Arrays;
 import java.util.List;
 
+import com.lunex.util.Constants.EVerb;
+
 /**
  * Rule for Logging
  * 
@@ -11,6 +13,7 @@ import java.util.List;
  */
 public class LoggingRulePattern {
   private String regexp;
+  private EVerb verb;
   private String optionsStr;
   private List<String> options;
 
@@ -38,18 +41,27 @@ public class LoggingRulePattern {
     this.options = options;
   }
 
+  public EVerb getVerb() {
+    return verb;
+  }
+
+  public void setVerb(EVerb verb) {
+    this.verb = verb;
+  }
+
   public LoggingRulePattern() {
 
   }
 
-  public LoggingRulePattern(String regexp, String optionsStr) {
+  public LoggingRulePattern(String regexp, String verb, String optionsStr) {
     this.regexp = regexp;
+    this.verb = EVerb.valueOf(verb.toUpperCase());
     this.optionsStr = optionsStr;
     this.options = Arrays.asList(optionsStr.split(","));
   }
-  
+
   @Override
   public String toString() {
-    return "regexp: " + regexp + ", options: " + options.toString();
+    return "regexp: " + regexp + ", verb: " + verb.toString() + ", options: " + options.toString();
   }
 }

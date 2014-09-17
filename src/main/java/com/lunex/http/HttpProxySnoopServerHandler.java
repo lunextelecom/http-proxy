@@ -35,7 +35,7 @@ import com.lunex.App;
 import com.lunex.util.HostAndPort;
 import com.lunex.util.RoutingRulePattern;
 
-public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Object> {
+public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
   private LastHttpContent trailer;
@@ -68,10 +68,10 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, Object msg) {
+  protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
     if (msg instanceof HttpRequest) {
       this.request = (HttpRequest) msg;
-      routingRulePattern = selectRulePattern(this.request);
+      routingRulePattern = App.routingRule.selectRulePattern(this.request);
       responseContentBuilder.setLength(0);
     }
 
@@ -172,16 +172,4 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Obj
 
     return keepAlive;
   }
-
-  public RoutingRulePattern selectRulePattern(HttpRequest request) {
-    for (int i = 0; i < App.routingRule.getListRulePattern().size(); i++) {
-      RoutingRulePattern rule = App.routingRule.getListRulePattern().get(i);
-      Pattern r = Pattern.compile(rule.getRegexp());
-      Matcher m = r.matcher(request.getUri());
-      if (m.find())
-        return rule;
-    }
-    return null;
-  }
-
 }

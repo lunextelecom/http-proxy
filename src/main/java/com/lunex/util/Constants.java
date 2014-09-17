@@ -9,6 +9,10 @@ public class Constants {
   }
 
   public static enum ELoggingOption {
-    request, request_header, request_body, response_body, on, of
+    request, request_header, request_body, response_body, on, off
+  }
+  
+  public static enum EVerb {
+    GET, POST, DELETE, NONE
   }
 }
