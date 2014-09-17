@@ -12,19 +12,12 @@ import com.lunex.util.Constants.EVerb;
  * @author BaoLe
  *
  */
-public class LoggingRulePattern {
-  private String regexp;
-  private EVerb verb;
+public class LoggingRulePattern extends LoggingRulePatternAbtract {
+
   private String optionsStr;
   private List<String> options;
 
-  public String getRegexp() {
-    return regexp;
-  }
 
-  public void setRegexp(String regexp) {
-    this.regexp = regexp;
-  }
 
   public String getOptionsStr() {
     return optionsStr;
@@ -40,14 +33,6 @@ public class LoggingRulePattern {
 
   public void setOptions(List<String> options) {
     this.options = options;
-  }
-
-  public EVerb getVerb() {
-    return verb;
-  }
-
-  public void setVerb(EVerb verb) {
-    this.verb = verb;
   }
 
   public LoggingRulePattern() {
