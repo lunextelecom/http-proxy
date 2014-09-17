@@ -11,6 +11,12 @@ import com.lunex.rule.LoggingRule;
 import com.lunex.util.Constants.ELoggingOption;
 
 
+/**
+ * Process write log with logging configuration
+ * 
+ * @author BaoLe
+ *
+ */
 public class LoggingProcessor {
 
   static final Logger logger = LoggerFactory.getLogger(LoggingProcessor.class);
@@ -50,9 +56,12 @@ public class LoggingProcessor {
     listParams.add(logObject.getTarget());
     listParams.add(logObject.getMethod().toString());
     listParams.add(logObject.getRequest() == null ? null : logObject.getRequest().getUri());
-    listParams.add(logObject.getRequestHeaders() == null ? null : logObject.getRequestHeaders().toString());
-    listParams.add(logObject.getRequestContent() == null ? null : logObject.getRequestContent().toString());
-    listParams.add(logObject.getResponseContent() == null ? null : logObject.getResponseContent().toString());
+    listParams.add(logObject.getRequestHeaders() == null ? null : logObject.getRequestHeaders()
+        .toString());
+    listParams.add(logObject.getRequestContent() == null ? null : logObject.getRequestContent()
+        .toString());
+    listParams.add(logObject.getResponseContent() == null ? null : logObject.getResponseContent()
+        .toString());
     try {
       App.dbResource.executeQueryWithParamsNonQuery(sql, listParams);
 

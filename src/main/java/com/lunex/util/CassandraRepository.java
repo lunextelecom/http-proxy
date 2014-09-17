@@ -29,6 +29,7 @@ public class CassandraRepository {
   /**
    * Get instance
    * 
+   * @author BaoLe
    * @return
    */
   public static CassandraRepository getInstance() {
@@ -41,6 +42,7 @@ public class CassandraRepository {
   /**
    * Init connection
    * 
+   * @author BaoLe
    * @param serverIP
    * @param keyspace
    * @return
@@ -60,6 +62,7 @@ public class CassandraRepository {
   /**
    * Close connect
    * 
+   * @author BaoLe
    * @return
    */
   public boolean closeConnection() {
@@ -76,6 +79,7 @@ public class CassandraRepository {
   /**
    * Execute query
    * 
+   * @author BaoLe
    * @param sql
    * @param listParams nullable
    * @return
@@ -110,6 +114,7 @@ public class CassandraRepository {
   /**
    * Execute non query
    * 
+   * @author BaoLe
    * @param sql
    * @param listParams
    * @return
