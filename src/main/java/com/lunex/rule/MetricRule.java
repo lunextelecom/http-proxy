@@ -11,33 +11,24 @@ import java.util.regex.Pattern;
 import com.lunex.util.Constants;
 import com.lunex.util.Constants.EVerb;
 
-/**
- * List rule for logging config
- * 
- * @author BaoLe
- *
- */
-public class LoggingRule {
-  private List<LoggingRulePattern> listRulePattern;
+public class MetricRule {
 
-  public List<LoggingRulePattern> getListRulePattern() {
+  private List<MetricRulePattern> listRulePattern;
+
+  public List<MetricRulePattern> getListRulePattern() {
     return listRulePattern;
   }
 
-  public void setListRulePattern(List<LoggingRulePattern> listRulePattern) {
+  public void setListRulePattern(List<MetricRulePattern> listRulePattern) {
     this.listRulePattern = listRulePattern;
   }
 
-  public LoggingRule() {
-
-  }
-
-  public LoggingRule(List<LoggingRulePattern> listRulePattern) {
-    this.listRulePattern = listRulePattern;
+  public MetricRule(List<MetricRulePattern> listMetricRule) {
+    this.listRulePattern = listMetricRule;
   }
 
   /**
-   * Load rule for logging from config
+   * Load rule for metric from config
    * 
    * @author BaoLe
    * @param listRule
@@ -45,14 +36,13 @@ public class LoggingRule {
    */
   public void loadLoggingRule(List<Map<String, Object>> listRule) throws Exception {
     try {
-      this.listRulePattern = new ArrayList<LoggingRulePattern>();
-      LoggingRulePattern rule = null;
+      this.listRulePattern = new ArrayList<MetricRulePattern>();
+      MetricRulePattern rule = null;
       for (int i = 0; i < listRule.size(); i++) {
         Map<String, Object> ruleMap = listRule.get(i);
         rule =
-            new LoggingRulePattern((String) ruleMap.get("Regexp"), 
-                (String) ruleMap.get("Verb"),
-                (String) ruleMap.get("Option"));
+            new MetricRulePattern((String) ruleMap.get("Regexp"), (String) ruleMap.get("Verb"),
+                (String) ruleMap.get("Metric"));
         listRulePattern.add(rule);
       }
     } catch (Exception ex) {
@@ -66,7 +56,7 @@ public class LoggingRule {
    * @author BaoLe
    * @param rule
    */
-  public void deleteRulePattern(LoggingRulePattern rule) {
+  public void deleteRulePattern(MetricRulePattern rule) {
     if (rule == null || Constants.EMPTY_STRING.equals(rule.getRegexp())) {
       return;
     }
@@ -102,7 +92,7 @@ public class LoggingRule {
    * @author BaoLe
    * @param rule
    */
-  public void addRulePattern(LoggingRulePattern rule) {
+  public void addRulePattern(MetricRulePattern rule) {
     this.listRulePattern.add(rule);
   }
 
@@ -112,7 +102,7 @@ public class LoggingRule {
    * @author BaoLe
    * @param rule
    */
-  public void updateRulePattern(LoggingRulePattern rule) {
+  public void updateRulePattern(MetricRulePattern rule) {
     if (rule == null || Constants.EMPTY_STRING.equals(rule.getRegexp())) {
       return;
     }
@@ -131,9 +121,9 @@ public class LoggingRule {
    * @param request
    * @return
    */
-  public LoggingRulePattern selectRulePattern(HttpRequest request) {
+  public MetricRulePattern selectRulePattern(HttpRequest request) {
     for (int i = 0; i < listRulePattern.size(); i++) {
-      LoggingRulePattern rule = listRulePattern.get(i);
+      MetricRulePattern rule = listRulePattern.get(i);
       Pattern r = Pattern.compile(rule.getRegexp());
       Matcher m = r.matcher(request.getUri());
       if (m.find())
@@ -141,8 +131,7 @@ public class LoggingRule {
           if (rule.getVerb().toString().equals(request.getMethod().toString())) {
             return rule;
           }
-        }
-        else {
+        } else {
           return rule;
         }
     }
