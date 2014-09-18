@@ -23,6 +23,10 @@ public class MetricRule {
     this.listRulePattern = listRulePattern;
   }
 
+  public MetricRule() {
+    
+  }
+  
   public MetricRule(List<MetricRulePattern> listMetricRule) {
     this.listRulePattern = listMetricRule;
   }
@@ -34,7 +38,7 @@ public class MetricRule {
    * @param listRule
    * @throws Exception
    */
-  public void loadLoggingRule(List<Map<String, Object>> listRule) throws Exception {
+  public void loadMetricRule(List<Map<String, Object>> listRule) throws Exception {
     try {
       this.listRulePattern = new ArrayList<MetricRulePattern>();
       MetricRulePattern rule = null;

@@ -11,6 +11,9 @@ public class ParameterHandler {
   public static String DB_USERNAME;
   public static String DB_PASS;
   public static String DB_DBNAME;
+  
+  public static String METRIC_HOST;
+  public static int METRIC_PORT;
 
   public static void getPropertiesValues() throws IOException {
 
@@ -23,6 +26,9 @@ public class ParameterHandler {
     DB_USERNAME = prop.getProperty("DB.USERNAME");
     DB_PASS = prop.getProperty("DB.PASS");
     DB_DBNAME = prop.getProperty("DB.DBNAME");
+    
+    METRIC_HOST = prop.getProperty("METRIC.HOST");
+    METRIC_PORT = Integer.valueOf(prop.getProperty("METRIC.PORT"));
   }
 
 }

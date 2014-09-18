@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.lunex.http.HttpProxySnoopServer;
 import com.lunex.rule.LoggingRule;
+import com.lunex.rule.MetricRule;
 import com.lunex.rule.RoutingRule;
 import com.lunex.util.CassandraRepository;
 import com.lunex.util.Configuration;
@@ -30,6 +31,7 @@ public class App {
   public static Map<String, Object> config;
   public static RoutingRule routingRule;
   public static LoggingRule loggingRule;
+  public static MetricRule metricRule;
   public static HttpProxySnoopServer server;
   public static CassandraRepository dbResource;
 
@@ -43,6 +45,8 @@ public class App {
     
     App.loadLoggingRule();
 
+    App.loadMetricRule();
+    
     App.startHttpProxy();
   }
 
@@ -124,6 +128,27 @@ public class App {
     }
   }
 
+  public static void loadMetricRule() {
+    if (config == null) {
+      try {
+        config = Configuration.loadYamlFile("configuration.yaml");
+      } catch (Exception e1) {
+        logger.error(e1.getMessage());
+      }
+      if (config == null) {
+        return;
+      }
+    }
+    List<Map<String, Object>> metricRuleArray = (List<Map<String, Object>>) config.get("Metric");
+    try {
+      metricRule = new MetricRule();
+      metricRule.loadMetricRule(metricRuleArray);
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+      loggingRule = null;
+    }
+  }
+  
   /**
    * Start netty server as HTTP proxy
    * 
