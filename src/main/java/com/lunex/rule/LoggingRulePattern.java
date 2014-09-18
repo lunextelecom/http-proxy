@@ -43,7 +43,7 @@ public class LoggingRulePattern extends LoggingRulePatternAbtract {
     this.regexp = regexp;
     this.verb = EVerb.valueOf(verb.toUpperCase());
     this.optionsStr = optionsStr;
-    this.options = Arrays.asList(optionsStr.split(","));
+    this.options = Arrays.asList(optionsStr.replaceAll("\\s+","").split(","));
   }
 
   @Override
