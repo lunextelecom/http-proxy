@@ -36,10 +36,10 @@ Logging:
 Metric:
   - Regexp: /didv2/dids?.
     Verb: GET
-    Metric: target.get_request
+    Metric: test.http.proxy.target.get_request
   - Regexp: /atsys/ws/json.
     Verb: GET
-    Metric: target.get_request
+    Metric: test.http.proxy.target.get_request
   - Regexp: /health?.
     Verb: GET
-    Metric: target.get_request_health
+    Metric: test.http.proxy.target.get_request_health

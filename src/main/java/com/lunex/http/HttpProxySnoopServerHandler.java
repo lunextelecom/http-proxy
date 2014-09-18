@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 
@@ -32,17 +33,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lunex.App;
+import com.lunex.rule.MetricRulePattern;
 import com.lunex.rule.RoutingRulePattern;
 import com.lunex.util.HostAndPort;
 import com.lunex.util.LogObject;
 import com.lunex.util.LoggingProcessor;
 import com.lunex.util.Constants.EVerb;
+import com.lunex.util.ParameterHandler;
+import com.lunex.util.Statsd;
 
 public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
   private LastHttpContent trailer;
   private RoutingRulePattern routingRulePattern;
+  private MetricRulePattern metricRulePattern;
+  private Statsd statsd;
+  private String statusResponse;
 
   private HttpRequest request;
   private DefaultHttpResponse defaultHttpResponse;
@@ -70,7 +77,11 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       ctx.flush();
     }
 
-    LoggingProcessor.writeLog(logObject, App.loggingRule);
+    LoggingProcessor.writeLog(logObject, App.loggingRule);// write logging
+
+    if (statsd != null) {// stop and write metric
+      statsd.stop(statusResponse);
+    }
   }
 
   @Override
@@ -91,64 +102,81 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     if (msg instanceof HttpContent) {
       HttpContent httpContent = (HttpContent) msg;
       logObject.setRequestContent(httpContent);
-      
+
       if (msg instanceof LastHttpContent) {
         trailer = (LastHttpContent) msg;
         if (!trailer.trailingHeaders().isEmpty()) {
+          // TODO
         }
 
-        // TODO something with jsonObject and return response
-        final CountDownLatch responseWaiter = new CountDownLatch(1);
-        if (routingRulePattern == null) {
+        // call target to request
+        this.processCallTarget();
+      }
+    }
+  }
+
+  private void processCallTarget() {
+    final CountDownLatch responseWaiter = new CountDownLatch(1);
+    if (routingRulePattern == null) {
+      return;
+    }
+    HostAndPort target = routingRulePattern.getBalancingStrategy().selectTarget();
+    if (target == null) {
+      logger.error("target is null");
+      responseContentBuilder.append("Target is null");
+      return;
+    }
+    String targetUrl = target.getHost() + ":" + target.getPort();
+    logObject.setTarget(targetUrl);
+
+    HttpProxySnoopClient client = new HttpProxySnoopClient(targetUrl, new CallbackHTTPVisitor() {
+      @Override
+      public void doJob(ChannelHandlerContext ctx, HttpObject msg) {
+        // TODO Auto-generated method stub
+        super.doJob(ctx, msg);
+        logger.info(msg.toString());
+        responseWaiter.countDown();
+        if (msg instanceof DefaultHttpResponse) {
+          defaultHttpResponse = (DefaultHttpResponse) msg;
+          HttpResponseStatus st = defaultHttpResponse.getStatus();
+          Integer code = st.code();
+          statusResponse = code.toString();
           return;
         }
-        HostAndPort target = routingRulePattern.getBalancingStrategy().selectTarget();
-        if (target == null) {
-          logger.error("target is null");
-          responseContentBuilder.append("Target is null");
-          return;
+        if (msg instanceof DefaultLastHttpContent) {
+          defaultLastHttpContent = (DefaultLastHttpContent) msg;
         }
-        logObject.setTarget(target.getHost() + ":" + target.getPort());
-        HttpProxySnoopClient client =
-            new HttpProxySnoopClient(target.getHost() + ":" + target.getPort(),
-                new CallbackHTTPVisitor() {
-                  @Override
-                  public void doJob(ChannelHandlerContext ctx, HttpObject msg) {
-                    // TODO Auto-generated method stub
-                    super.doJob(ctx, msg);
-                    logger.info(msg.toString());
-                    responseWaiter.countDown();
-                    if (msg instanceof DefaultHttpResponse) {
-                      defaultHttpResponse = (DefaultHttpResponse) msg;
-                      return;
-                    }
-                    if (msg instanceof DefaultLastHttpContent) {
-                      defaultLastHttpContent = (DefaultLastHttpContent) msg;
-                    }
-                    if (msg instanceof HttpContent) {
-                      logObject.setResponseContent(defaultLastHttpContent);
-                      HttpContent httpContent = (HttpContent) msg;
-                      ByteBuf content = httpContent.content();
-                      if (content.isReadable()) {
-                        String dataContent = content.toString(CharsetUtil.UTF_8);
-                        responseContentBuilder.append(dataContent);
-                      }
-                    }
-                  }
-                });
-        try {
-          client.submitRequest(request);
-        } catch (Exception e) {
-          logger.error(e.getMessage());
-        }
-        try {
-          responseWaiter.await();
-          client.shutdown();
-          logger.info("Shutdown client");
-        } catch (InterruptedException e) {
-          logger.error(e.getMessage());
+        if (msg instanceof HttpContent) {
+          logObject.setResponseContent(defaultLastHttpContent);
+          HttpContent httpContent = (HttpContent) msg;
+          ByteBuf content = httpContent.content();
+          if (content.isReadable()) {
+            String dataContent = content.toString(CharsetUtil.UTF_8);
+            responseContentBuilder.append(dataContent);
+          }
         }
       }
+    });
+    try {
+      // start write metric
+      metricRulePattern = App.metricRule.selectRulePattern(this.request);
+      if (metricRulePattern != null) {
+        String metric =
+            metricRulePattern.getMetric().replace("target.",
+                targetUrl.replace(".", "_").replace(":", "_") + ".");
+        statsd = Statsd.start(metric, ParameterHandler.METRIC_HOST, ParameterHandler.METRIC_PORT);
+      }
+
+      client.submitRequest(request);
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    try {
+      responseWaiter.await();
+      client.shutdown();
+      logger.info("Shutdown client");
+    } catch (InterruptedException e) {
+      logger.error(e.getMessage());
     }
   }
 
