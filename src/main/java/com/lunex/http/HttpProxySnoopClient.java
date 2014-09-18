@@ -1,26 +1,15 @@
 package com.lunex.http;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
-import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import io.netty.util.CharsetUtil;
 
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 import javax.net.ssl.SSLException;
 
@@ -32,7 +21,6 @@ public class HttpProxySnoopClient {
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopClient.class);
 
   private String url;
-  private URI uri;
   private int port;
   private String host;
   public CallbackHTTPVisitor callback;
