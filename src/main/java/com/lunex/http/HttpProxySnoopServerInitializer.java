@@ -9,8 +9,7 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 public class HttpProxySnoopServerInitializer extends ChannelInitializer<SocketChannel> {
 
 
-  public HttpProxySnoopServerInitializer() {
-  }
+  public HttpProxySnoopServerInitializer() {}
 
   @Override
   public void initChannel(SocketChannel ch) {

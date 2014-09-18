@@ -38,15 +38,15 @@ public class App {
   public static void main(String[] args) {
 
     App.loadCassandraResource();
-    
+
     App.loadLog4j();
 
     App.loadRoutingRule();
-    
+
     App.loadLoggingRule();
 
     App.loadMetricRule();
-    
+
     App.startHttpProxy();
   }
 
@@ -58,12 +58,14 @@ public class App {
   public static void loadCassandraResource() {
     try {
       ParameterHandler.getPropertiesValues();
-      dbResource = CassandraRepository.getInstance().initConnectionCassandraDB(ParameterHandler.DB_HOST, ParameterHandler.DB_DBNAME);
+      dbResource =
+          CassandraRepository.getInstance().initConnectionCassandraDB(ParameterHandler.DB_HOST,
+              ParameterHandler.DB_DBNAME);
     } catch (IOException e) {
       logger.error(e.getMessage());
     }
   }
-  
+
   /**
    * Load log4j configuration
    * 
@@ -148,7 +150,7 @@ public class App {
       loggingRule = null;
     }
   }
-  
+
   /**
    * Start netty server as HTTP proxy
    * 
