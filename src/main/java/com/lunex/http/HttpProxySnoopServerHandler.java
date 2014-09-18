@@ -52,6 +52,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
   private String statusResponse;
 
   private HttpRequest request;
+  private HttpContent requestContent;
   private DefaultHttpResponse defaultHttpResponse;
   private DefaultLastHttpContent defaultLastHttpContent;
   private final StringBuilder responseContentBuilder = new StringBuilder();
@@ -77,11 +78,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       ctx.flush();
     }
 
-    LoggingProcessor.writeLog(logObject, App.loggingRule);// write logging
-
-    if (statsd != null) {// stop and write metric
-      statsd.stop(statusResponse);
-    }
+    this.processLogging();
   }
 
   @Override
@@ -102,7 +99,8 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     if (msg instanceof HttpContent) {
       HttpContent httpContent = (HttpContent) msg;
       logObject.setRequestContent(httpContent);
-
+      requestContent = httpContent;
+      
       if (msg instanceof LastHttpContent) {
         trailer = (LastHttpContent) msg;
         if (!trailer.trailingHeaders().isEmpty()) {
@@ -116,10 +114,13 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
   }
 
   private void processCallTarget() {
-    final CountDownLatch responseWaiter = new CountDownLatch(1);
+    if (request == null) {
+      return;
+    }
     if (routingRulePattern == null) {
       return;
     }
+    final CountDownLatch responseWaiter = new CountDownLatch(1);
     HostAndPort target = routingRulePattern.getBalancingStrategy().selectTarget();
     if (target == null) {
       logger.error("target is null");
@@ -167,7 +168,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
         statsd = Statsd.start(metric, ParameterHandler.METRIC_HOST, ParameterHandler.METRIC_PORT);
       }
 
-      client.submitRequest(request);
+      client.submitRequest(request, requestContent);
     } catch (Exception e) {
       logger.error(e.getMessage());
     }
@@ -217,5 +218,19 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     ctx.writeAndFlush(response);
 
     return keepAlive;
+  }
+
+  private void processLogging() {
+    Thread threadLogging = new Thread(new Runnable() {
+      public void run() {
+        LoggingProcessor.writeLogging(logObject, App.loggingRule);// write logging
+
+        if (statsd != null) {// stop and write metric
+          statsd.stop(statusResponse);
+        }
+
+      }
+    });
+    threadLogging.start();
   }
 }

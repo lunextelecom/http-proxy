@@ -1,18 +1,26 @@
 package com.lunex.http;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
+import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.util.CharsetUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.net.ssl.SSLException;
 
@@ -55,7 +63,7 @@ public class HttpProxySnoopClient {
     return true;
   }
 
-  public Channel submitRequest(HttpRequest request) throws Exception {
+  public Channel submitRequest(HttpRequest request, HttpContent requestContent) throws Exception {
     try {
       if (!this.preProcessURL()) {
         return null;
@@ -75,15 +83,9 @@ public class HttpProxySnoopClient {
       ch = b.connect(host, port).sync().channel();
 
       // Send the HTTP request.
-      if (request == null) {
-        request =
-            new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-        request.headers().set(HttpHeaders.Names.HOST, host);
-        request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
-        request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
-        request.headers().set(HttpHeaders.Names.ACCEPT_CHARSET, "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-      }
-      ch.writeAndFlush(request);
+      HttpRequest temp = new DefaultFullHttpRequest(request.getProtocolVersion(), request.getMethod(), request.getUri(), requestContent.content());
+      temp.headers().add(request.headers());
+      ch.writeAndFlush(temp);
 
       // Wait for the server to close the connection.
       // ch.closeFuture().sync();
