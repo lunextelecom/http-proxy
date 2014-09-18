@@ -100,7 +100,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       HttpContent httpContent = (HttpContent) msg;
       logObject.setRequestContent(httpContent);
       requestContent = httpContent;
-      
+
       if (msg instanceof LastHttpContent) {
         trailer = (LastHttpContent) msg;
         if (!trailer.trailingHeaders().isEmpty()) {
@@ -188,9 +188,8 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
     // Build the response object.
     FullHttpResponse response =
-        new DefaultFullHttpResponse(HTTP_1_1, currentObj.getDecoderResult().isSuccess() ? OK
-            : BAD_REQUEST, Unpooled.copiedBuffer(responseContentBuilder.toString(),
-            CharsetUtil.UTF_8));
+        new DefaultFullHttpResponse(defaultHttpResponse.getProtocolVersion(), defaultHttpResponse.getStatus(),
+            Unpooled.copiedBuffer(responseContentBuilder.toString(), CharsetUtil.UTF_8));
 
     response.headers().set(CONTENT_TYPE, defaultHttpResponse.headers().get("Content-Type"));
 
