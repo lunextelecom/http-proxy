@@ -12,6 +12,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
+/**
+ * Netty server for http protocol
+ * 
+ * @author BaoLe
+ *
+ */
 public class HttpProxySnoopServer {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServer.class);
@@ -31,6 +37,7 @@ public class HttpProxySnoopServer {
   /**
    * Start HTTP server to listen request from client
    * 
+   * @author BaoLe
    * @throws Exception
    */
   public synchronized void startServer() throws Exception {
@@ -56,6 +63,8 @@ public class HttpProxySnoopServer {
 
   /**
    * Shutdown server
+   * 
+   * @author BaoLe
    */
   public synchronized void stopServer() {
     channel.close();

@@ -39,6 +39,12 @@ import com.lunex.util.Constants.EVerb;
 import com.lunex.util.ParameterHandler;
 import com.lunex.util.Statsd;
 
+/**
+ * Server handler for netty server
+ * 
+ * @author BaoLe
+ *
+ */
 public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
@@ -110,6 +116,11 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     }
   }
 
+  /**
+   * Submit request to target from Balancer
+   * 
+   * @author BaoLe
+   */
   private void processCallTarget() {
     if (request == null) {
       return;
@@ -178,6 +189,14 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     }
   }
 
+  /**
+   * Write response from http client to client of netty server
+   * 
+   * @author BaoLe
+   * @param currentObj
+   * @param ctx
+   * @return
+   */
   private boolean writeResponse(HttpObject currentObj, ChannelHandlerContext ctx) {
     logger.info("Write response");
     // Decide whether to close the connection or not.
@@ -185,8 +204,9 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
     // Build the response object.
     FullHttpResponse response =
-        new DefaultFullHttpResponse(defaultHttpResponse.getProtocolVersion(), defaultHttpResponse.getStatus(),
-            Unpooled.copiedBuffer(responseContentBuilder.toString(), CharsetUtil.UTF_8));
+        new DefaultFullHttpResponse(defaultHttpResponse.getProtocolVersion(),
+            defaultHttpResponse.getStatus(), Unpooled.copiedBuffer(
+                responseContentBuilder.toString(), CharsetUtil.UTF_8));
 
     response.headers().set(CONTENT_TYPE, defaultHttpResponse.headers().get("Content-Type"));
 
@@ -216,6 +236,11 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     return keepAlive;
   }
 
+  /**
+   * Process logging(logging + metric)
+   * 
+   * @author BaoLe
+   */
   private void processLogging() {
     Thread threadLogging = new Thread(new Runnable() {
       public void run() {

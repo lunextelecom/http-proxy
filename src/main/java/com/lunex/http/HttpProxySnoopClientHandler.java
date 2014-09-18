@@ -10,6 +10,13 @@ import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 
+/**
+ * 
+ * @author BaoLe
+ * 
+ * Handler for netty client
+ *
+ */
 public class HttpProxySnoopClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopClientHandler.class);
@@ -28,9 +35,7 @@ public class HttpProxySnoopClientHandler extends SimpleChannelInboundHandler<Htt
   @Override
   public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
     logger.info(msg.toString());
-    if (msg instanceof LastHttpContent 
-        || msg instanceof HttpContent
-        || msg instanceof HttpResponse) {
+    if (msg instanceof LastHttpContent || msg instanceof HttpContent || msg instanceof HttpResponse) {
       if (callback != null) {
         callback.doJob(ctx, msg);
       }

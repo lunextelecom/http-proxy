@@ -6,8 +6,13 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 
+/**
+ * Channel Initializer for netty server
+ * 
+ * @author BaoLe
+ *
+ */
 public class HttpProxySnoopServerInitializer extends ChannelInitializer<SocketChannel> {
-
 
   public HttpProxySnoopServerInitializer() {}
 

@@ -36,6 +36,8 @@ public class HttpProxySnoopClient {
   /**
    * prepare host information for processing
    * 
+   * @author BaoLe
+   * 
    * @return
    * @throws URISyntaxException
    * @throws SSLException
@@ -51,6 +53,15 @@ public class HttpProxySnoopClient {
     return true;
   }
 
+  /**
+   * Submit request to target
+   * 
+   * @author BaoLe
+   * @param request
+   * @param requestContent
+   * @return
+   * @throws Exception
+   */
   public Channel submitRequest(HttpRequest request, HttpContent requestContent) throws Exception {
     try {
       if (!this.preProcessURL()) {
@@ -71,7 +82,9 @@ public class HttpProxySnoopClient {
       ch = b.connect(host, port).sync().channel();
 
       // Send the HTTP request.
-      HttpRequest temp = new DefaultFullHttpRequest(request.getProtocolVersion(), request.getMethod(), request.getUri(), requestContent.content());
+      HttpRequest temp =
+          new DefaultFullHttpRequest(request.getProtocolVersion(), request.getMethod(),
+              request.getUri(), requestContent.content());
       temp.headers().add(request.headers());
       ch.writeAndFlush(temp);
 
@@ -86,6 +99,11 @@ public class HttpProxySnoopClient {
     return ch;
   }
 
+  /**
+   * Shutdown
+   * 
+   * @author BaoLe
+   */
   public void shutdown() {
     group.shutdownGracefully();
   }
