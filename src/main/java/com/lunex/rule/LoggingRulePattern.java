@@ -3,7 +3,6 @@ package com.lunex.rule;
 import java.util.Arrays;
 import java.util.List;
 
-import com.lunex.util.Constants;
 import com.lunex.util.Constants.EVerb;
 
 /**

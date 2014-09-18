@@ -29,16 +29,16 @@ public class LoggingProcessor {
    * @param logObject
    * @param loggingRule
    */
-  public static void writeLog(LogObject logObject, LoggingRule loggingRule) {
+  public static void writeLogging(LogObject logObject, LoggingRule loggingRule) {
     if (logObject == null) {
       return;
     }
     LoggingRulePattern pattern = loggingRule.selectRulePattern(logObject.getRequest());
     if (pattern != null) {
       List<String> options = pattern.getOptions();
-      writeLog(logObject, options);
+      writeLogging(logObject, options);
     } else {
-      writeLog(logObject);
+      writeLogging(logObject);
     }
   }
 
@@ -48,7 +48,7 @@ public class LoggingProcessor {
    * @author BaoLe
    * @param logObject
    */
-  public static void writeLog(LogObject logObject) {
+  public static void writeLogging(LogObject logObject) {
     String sql =
         "insert into logging(id, client, target, method, request, request_header, request_body, response_body)";
     sql += "values (now(), ?, ?, ?, ?, ?, ?, ?);";
@@ -76,7 +76,7 @@ public class LoggingProcessor {
    * @param logObject
    * @param logginOptions
    */
-  public static void writeLog(LogObject logObject, List<String> logginOptions) {
+  public static void writeLogging(LogObject logObject, List<String> logginOptions) {
     if (logginOptions.contains(ELoggingOption.off.toString())) {
       // TODO nothing with this rule
       return;
@@ -89,7 +89,7 @@ public class LoggingProcessor {
         logObject.setRequestHeaders(null);
         logObject.setRequestContent(null);
         logObject.setResponseContent(null);
-        writeLog(logObject);
+        writeLogging(logObject);
         return;
       }
     } else {
@@ -125,7 +125,7 @@ public class LoggingProcessor {
       } else {
         logObject.setResponseContent(null);
       }
-      writeLog(logObject);
+      writeLogging(logObject);
     }
   }
 }
