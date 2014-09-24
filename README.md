@@ -36,12 +36,13 @@ Local accessible port to do the following:
 - request handled per endpoint, url  
 - list of endpoint(alive, down)  + the count of request
 
+
 ## Sample Configuration
 ```
 ##Default for route
 route_default:	
 	logging: req, req_body(POST,PUT), resp_body(POST)
-	metric: {server}.{verb}_{name}_{response_code}	
+	metric: {server_name}.{verb}_{route_name}_{response_code}	
 	balancer: rr #this is in the case user do not config server.
 	health: None #this is in the case user do not config server.
 
@@ -78,7 +79,7 @@ routes:
 	- name: new_order
 	  url: POST /pos/.+/orders/.+
 	  target: pos_server
-	  metric: {server}.{name}_{response_code}
+	  metric: {server_name}.{route_name}_{response_code}
 
 #match /product, /products, /sku, skus
 	- name: catalog
