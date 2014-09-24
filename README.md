@@ -18,7 +18,6 @@ http-proxy
 ## Aggregate multiple webservice endpoint
   As as frontend to different webservice.  This does not modify http parameter, body.  It will just passthru to servers behind in the configuration.  There will be default server and
 
-
 ## Loadbalancing
   Simple round robin to server that are alive.  HTTP ping server to determine if they are alive.  Server that does not return http 200 within 2 consecutive ping will be marked as down.
 
@@ -51,23 +50,26 @@ server_default:
 	balancer: rr
 	health: GET /health
 
-## Configuration begin here
+##servers:
+##	- name: name of this list of server
+##	  target: list of server
+##	  health: health url.  use blank to fall back to tcp ping. 'off' to disable 
+##	  balancer: load balancing algorithm. RR
+##routes:	
+##	- name: name of this route
+##	  url: {verb} {regex of url}
+##	  target: can be defined server or just ip
+##	  logging: off, req, req_header, req_body, resp_header, resp_body
+##		       can also max in verb, so req(POST,PUT) or req(*) == req
 
+## Configuration begin here
 servers:
-	#name: name of servers
-	#target: list of server	
 	- name: did_server
 	  target: [192.168.93.100,192.168.93.101]
 	- name: pos_server
 	  target: [192.168.93.100:9090,192.168.93.101:9090]
 
 routes:	
-	#using
-	#name: name of this route
-	#url: {verb} {regex of url}
-	#target: can be defined server or just ip
-	#logging: off, req, req_header, req_body, resp_header, resp_body
-	#		can also max in verb, so req(POST,PUT) or req(*) == req
 	- name: did
 	  url: * /didv2/dids.*
 	  target: did_server
@@ -90,7 +92,6 @@ routes:
 	  url: * .*
 	  target: 192.168.93.102:8080 	  
 	  logging: req
-
 ```
 
 
