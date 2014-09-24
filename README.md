@@ -87,7 +87,7 @@ routes:
 #logging all req, req
 #target can also point directly to an ip instead of server
 	- name: unmapped
-	  url: .* *
+	  url: * .*
 	  target: 192.168.93.102:8080 	  
 	  logging: req
 
