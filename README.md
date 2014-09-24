@@ -60,6 +60,12 @@ server_default:
 ##	- name: name of this route
 ##	  url: {verb} {regex of url}
 ##	  target: can be defined server or just ip
+##	  metric: the string of graphite metric.  variable can be used 
+##			  server_name: name of server
+##			  server_target: the selected server
+##			  verb: the verb of this request
+##			  route_name: name of the route
+##			  response_code: the http status code in the response
 ##	  logging: off, req, req_header, req_body, resp_header, resp_body
 ##		       can also max in verb, so req(POST,PUT) or req(*) == req
 
