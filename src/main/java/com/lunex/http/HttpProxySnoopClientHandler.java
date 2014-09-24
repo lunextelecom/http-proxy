@@ -34,7 +34,6 @@ public class HttpProxySnoopClientHandler extends SimpleChannelInboundHandler<Htt
 
   @Override
   public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
-    logger.info(msg.toString());
     if (msg instanceof LastHttpContent || msg instanceof HttpContent || msg instanceof HttpResponse) {
       if (callback != null) {
         callback.doJob(ctx, msg);

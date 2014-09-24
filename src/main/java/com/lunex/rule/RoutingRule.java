@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.lunex.util.Configuration;
 import com.lunex.util.Constants;
@@ -16,6 +15,7 @@ import com.lunex.util.Constants;
  * Class RoutingRule Contain list routing rule
  * 
  * @author BaoLe
+ * @update DuyNguyen
  *
  */
 public class RoutingRule {
@@ -54,8 +54,10 @@ public class RoutingRule {
             new RoutingRulePattern(ruleMap.get("Regexp").toString(),
                 Configuration.MAP_BALANCER_STATEGY.get(ruleMap.get("Balancer").toString()));
         String targetStr = (String) ruleMap.get("Target");
-        String[] arrayTarget = targetStr.split(",");
-        List<String> targetStrs = (Arrays.asList(arrayTarget));
+        List<String> targetStrs = new ArrayList<>();
+        for(String child : targetStr.split(",")){
+          targetStrs.add(child.trim());
+        }
         rule.createBalancingStrategy(targetStrs);
         listRulePattern.add(rule);
       }
@@ -126,16 +128,18 @@ public class RoutingRule {
    * Get rule pattern from http request
    * 
    * @author BaoLe
+   * @update DuyNguyen
    * @param request
    * @return
    */
-  public RoutingRulePattern selectRulePattern(HttpRequest request) {
-    for (int i = 0; i < listRulePattern.size(); i++) {
-      RoutingRulePattern rule = listRulePattern.get(i);
-      Pattern r = Pattern.compile(rule.getRegexp());
-      Matcher m = r.matcher(request.getUri());
-      if (m.find())
-        return rule;
+  public RoutingRulePattern selectRulePattern(String url) {
+    for (RoutingRulePattern child : listRulePattern) {
+      if(child.getPattern() != null){
+        Matcher m = child.getPattern().matcher(url);
+        if (m.find()){
+          return child;
+        }
+      }
     }
     return null;
   }
@@ -144,4 +148,5 @@ public class RoutingRule {
   public String toString() {
     return "listRulePattern: " + this.listRulePattern.toString();
   }
+  
 }

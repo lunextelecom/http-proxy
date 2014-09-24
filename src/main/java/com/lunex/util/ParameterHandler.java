@@ -15,20 +15,23 @@ public class ParameterHandler {
   public static String METRIC_HOST;
   public static int METRIC_PORT;
 
-  public static void getPropertiesValues() throws IOException {
+  public static void getPropertiesValues(String propFileName) throws IOException {
 
-    Properties prop = new Properties();
-    String propFileName = "db.properties";
+    try {
+      Properties prop = new Properties();
 
-    InputStream inputStream = new FileInputStream(propFileName);
-    prop.load(inputStream);
-    DB_HOST = prop.getProperty("DB.HOST");
-    DB_USERNAME = prop.getProperty("DB.USERNAME");
-    DB_PASS = prop.getProperty("DB.PASS");
-    DB_DBNAME = prop.getProperty("DB.DBNAME");
-    
-    METRIC_HOST = prop.getProperty("METRIC.HOST");
-    METRIC_PORT = Integer.valueOf(prop.getProperty("METRIC.PORT"));
+      InputStream inputStream = new FileInputStream(propFileName);
+      prop.load(inputStream);
+      DB_HOST = prop.getProperty("DB.HOST");
+      DB_USERNAME = prop.getProperty("DB.USERNAME");
+      DB_PASS = prop.getProperty("DB.PASS");
+      DB_DBNAME = prop.getProperty("DB.DBNAME");
+      
+      METRIC_HOST = prop.getProperty("METRIC.HOST");
+      METRIC_PORT = Integer.valueOf(prop.getProperty("METRIC.PORT"));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
 }

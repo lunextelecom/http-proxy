@@ -1,35 +1,39 @@
-#Routing rule for Aggregate multiple webservice endpoint
+#Routing
 Routing:
   - Regexp: /didv2/dids?.
     Balancer: RR
     Target: 10.9.9.62:8090
   - Regexp: /atsys/ws/json.
     Balancer: RR
-    Target: 10.9.9.61:8803,10.9.9.61:8803
+    Target: 10.9.9.61:8801,10.9.9.61:8802
   - Regexp: /health?.
     Balancer: RR
     Target: 10.9.9.62:9004,10.9.9.62:9005
+
 #Logging
 Logging:
   - Regexp: /didv2/dids?.
     Verb: GET
     Option: 'on'
-  - Regexp: /didv2/dids?.
+  - Regexp: /atsys/ws/json.
     Verb: NONE
     Option: request, request_header, request_body, response_body
-  - Regexp: /atsys/ws/json.
-    Verb: GET
-    Option: 'off'#Metric naming
-#URL(regex) verb = metric
+  - Regexp: /health?.
+    Verb: POST
+    Option: 'off'
+
+#Metric
 Metric:
   - Regexp: /didv2/dids?.
     Verb: GET
     Metric: test.http.proxy.target.get_request
   - Regexp: /atsys/ws/json.
-    Verb: GET
-    Metric: test.http.proxy.target.get_request
+    Verb: DELETE
+    Metric: test.http.proxy.target.get_request_ats
   - Regexp: /health?.
-    Verb: GET
+    Verb: POST
     Metric: test.http.proxy.target.get_request_health
+
+#IPFilter:    
 IPFilter:
-  - List: 192.168.1.133,192.168.1.128
+  - List: 192.168.1.133, 192.168.1.128, 192.168.1.129, 192.168.1.130, 127.0.0.2

@@ -131,14 +131,14 @@ public class LoggingRule {
    * @param request
    * @return
    */
-  public LoggingRulePattern selectRulePattern(HttpRequest request) {
+  public LoggingRulePattern selectRulePattern(String url, String method) {
     for (int i = 0; i < listRulePattern.size(); i++) {
       LoggingRulePattern rule = listRulePattern.get(i);
       Pattern r = Pattern.compile(rule.getRegexp());
-      Matcher m = r.matcher(request.getUri());
+      Matcher m = r.matcher(url);
       if (m.find())
         if (rule.getVerb() != EVerb.NONE) {
-          if (rule.getVerb().toString().equals(request.getMethod().toString())) {
+          if (rule.getVerb().toString().equals(method)) {
             return rule;
           }
         }

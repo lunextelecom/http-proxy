@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
+ * @update DuyNguyen
  */
 public class HostAndPort {
 
@@ -22,9 +23,10 @@ public class HostAndPort {
 
   private final String host;
   private final int port;
-
+  private boolean isAlive = true;
   // constructors
   // ---------------------------------------------------------------------------------------------------
+
 
   public HostAndPort(int port) {
     this.host = ANY;
@@ -84,5 +86,13 @@ public class HostAndPort {
   @Override
   public String toString() {
     return this.host + ':' + this.port;
+  }
+  
+  public boolean isAlive() {
+    return isAlive;
+  }
+
+  public void setAlive(boolean isAlive) {
+    this.isAlive = isAlive;
   }
 }

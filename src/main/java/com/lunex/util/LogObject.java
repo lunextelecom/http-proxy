@@ -9,10 +9,10 @@ import io.netty.handler.codec.http.HttpRequest;
 public class LogObject {
 
   private String target;
-  private HttpRequest request;
-  private HttpContent requestContent;
-  private HttpHeaders requestHeaders;
-  private HttpContent responseContent;
+  private String request;
+  private String requestContent;
+  private String requestHeaders;
+  private String responseContent;
   private EVerb method;
   private String client;
 
@@ -24,35 +24,35 @@ public class LogObject {
     this.target = target;
   }
 
-  public HttpRequest getRequest() {
+  public String getRequest() {
     return request;
   }
 
-  public void setRequest(HttpRequest request) {
+  public void setRequest(String request) {
     this.request = request;
   }
 
-  public HttpContent getRequestContent() {
+  public String getRequestContent() {
     return requestContent;
   }
 
-  public void setRequestContent(HttpContent requestContent) {
+  public void setRequestContent(String requestContent) {
     this.requestContent = requestContent;
   }
 
-  public HttpHeaders getRequestHeaders() {
+  public String getRequestHeaders() {
     return requestHeaders;
   }
 
-  public void setRequestHeaders(HttpHeaders requestHeaders) {
+  public void setRequestHeaders(String requestHeaders) {
     this.requestHeaders = requestHeaders;
   }
 
-  public HttpContent getResponseContent() {
+  public String getResponseContent() {
     return responseContent;
   }
 
-  public void setResponseContent(HttpContent responseContent) {
+  public void setResponseContent(String responseContent) {
     this.responseContent = responseContent;
   }
 
