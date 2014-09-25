@@ -52,8 +52,8 @@ server_default:
 ##servers:
 ##	- name: name of this list of server
 ##	  target: list of server
-##	  health: health url.  use blank to fall back to tcp ping. 'off' to disable 
-##	  balancer: load balancing algorithm. RR
+##	  health: health url.  use 'ping' to fall back to tcp ping. 'off' to disable 
+##	  balancer: load balancing algorithm. RR(round robin), LU(least use)
 ##routes:	
 ##	- name: name of this route
 ##	  url: {verb} {regex of url}
