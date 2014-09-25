@@ -75,6 +75,12 @@ servers:
 	  target: [192.168.93.100:9090,192.168.93.101:9090]
       health: ping
       balancer: LU
+	- name: catalog
+	  target: [192.168.93.100:9090/myapp,192.168.93.101:9090/myapp]
+      health: ping
+      balancer: LU      
+    - name: default_server
+      target: 192.168.93.102:8080
 
 routes:	
 	- name: did
@@ -90,14 +96,14 @@ routes:
 #match /product, /products, /sku, skus
 	- name: catalog
 	  url: * /(product(?=s| )|sku(?=s| ))/.*
-	  server: 192.168.93.107 #balancer, health is default from server_default
+	  server: catalog_server #balancer, health is default from server_default
 
 #map all url to old server
 #logging all req, req
 #target can also point directly to an ip instead of server
 	- name: unmapped
 	  url: * .*
-	  server: 192.168.93.102:8080 	  
+	  server: default_server
 	  logging: req      
 ```
 
