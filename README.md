@@ -76,7 +76,7 @@ servers:
       health: /myhealth
       balancer: LU
 	- name: catalog
-	  target: [192.168.93.100:9090/myapp,192.168.93.101:9090/myapp]
+	  target: [192.168.93.100:9090/build_123,192.168.93.101:9090/build_123]
       health: ping
       balancer: LU      
     - name: default_server
