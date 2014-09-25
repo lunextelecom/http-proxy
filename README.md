@@ -73,6 +73,7 @@ servers:
 	  target: [192.168.93.100,192.168.93.101]
 	- name: pos_server
 	  target: [192.168.93.100:9090,192.168.93.101:9090]
+      health: 
 
 routes:	
 	- name: did
