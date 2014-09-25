@@ -74,6 +74,7 @@ servers:
 	- name: pos_server
 	  target: [192.168.93.100:9090,192.168.93.101:9090]
       health: ping
+      balancer: LU
 
 routes:	
 	- name: did
