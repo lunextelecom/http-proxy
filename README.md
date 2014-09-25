@@ -57,7 +57,7 @@ server_default:
 ##routes:	
 ##	- name: name of this route
 ##	  url: {verb} {regex of url}
-##	  target: can be defined server or just ip
+##	  server: can be defined server or just ip
 ##	  metric: the string of graphite metric.  variable can be used 
 ##			  server_name: name of server
 ##			  server_target: the selected server
@@ -97,19 +97,7 @@ routes:
 	- name: unmapped
 	  url: * .*
 	  server: 192.168.93.102:8080 	  
-	  logging: req
-
-or 
-
-#target can also point directly to an ip instead of server
-	- name: unmapped
-	  url: * .*
-	  server: 
-      	name: default_server
-      	target: 192.168.93.102:8080
-        health: ping
-	  logging: req
-      
+	  logging: req      
 ```
 
 
