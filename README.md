@@ -42,7 +42,7 @@ Local accessible port to do the following:
 ##Default for route
 route_default:	
 	logging: req, req_body(POST,PUT), resp_body(POST)
-	metric: {server_name}.{verb}_{route_name}_{response_code}	
+	metric: "{server_name}.{verb}_{route_name}_{response_code}"
 
 ##Default for server
 server_default:
@@ -70,13 +70,13 @@ server_default:
 ## Configuration begin here
 servers:
 	- name: did_server
-	  target: [192.168.93.100,192.168.93.101]
+	  target: 192.168.93.100:8080,192.168.93.101:8080
 	- name: pos_server
-	  target: [192.168.93.100:9090,192.168.93.101:9090]
+	  target: 192.168.93.100:9090,192.168.93.101:9090
       health: /myhealth
       balancer: LU
 	- name: catalog
-	  target: [192.168.93.100:9090/build_123,192.168.93.101:9090/build_123]
+	  target: 192.168.93.100:9090/build_123,192.168.93.101:9090/build_123
       health: ping
       balancer: LU      
     - name: default_server
@@ -84,25 +84,25 @@ servers:
 
 routes:	
 	- name: did
-	  url: * /didv2/dids.*
+	  url: "* /didv2/dids.*"
 	  server: did_server
 	  logging: off
 
 	- name: new_order
-	  url: POST /pos/.+/orders/.+
+	  url: "POST /pos/.+/orders/.+"
 	  server: pos_server
-	  metric: {server_name}.{route_name}_{response_code}
+	  metric: "{server_name}.{route_name}_{response_code}"
 
 #match /product, /products, /sku, skus
 	- name: catalog
-	  url: * /(product(?=s| )|sku(?=s| ))/.*
+	  url: "* /(product(?=s| )|sku(?=s| ))/.*"
 	  server: catalog_server #balancer, health is default from server_default
 
 #map all url to old server
 #logging all req, req
 #target can also point directly to an ip instead of server
 	- name: unmapped
-	  url: * .*
+	  url: "* .*"
 	  server: default_server
 	  logging: req      
 ```
