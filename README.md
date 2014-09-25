@@ -98,6 +98,18 @@ routes:
 	  url: * .*
 	  server: 192.168.93.102:8080 	  
 	  logging: req
+
+or 
+
+#target can also point directly to an ip instead of server
+	- name: unmapped
+	  url: * .*
+	  server: 
+      	name: default_server
+      	target: 192.168.93.102:8080
+        health: ping
+	  logging: req
+      
 ```
 
 
