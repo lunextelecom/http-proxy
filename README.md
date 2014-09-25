@@ -47,7 +47,7 @@ route_default:
 ##Default for server
 server_default:
 	balancer: rr
-	health: GET /health
+	health: /health
 
 ##servers:
 ##	- name: name of this list of server
@@ -73,7 +73,7 @@ servers:
 	  target: [192.168.93.100,192.168.93.101]
 	- name: pos_server
 	  target: [192.168.93.100:9090,192.168.93.101:9090]
-      health: ping
+      health: /myhealth
       balancer: LU
 	- name: catalog
 	  target: [192.168.93.100:9090/myapp,192.168.93.101:9090/myapp]
