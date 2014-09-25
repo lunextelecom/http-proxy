@@ -43,8 +43,6 @@ Local accessible port to do the following:
 route_default:	
 	logging: req, req_body(POST,PUT), resp_body(POST)
 	metric: {server_name}.{verb}_{route_name}_{response_code}	
-	balancer: rr #this is in the case user do not config server.
-	health: None #this is in the case user do not config server.
 
 ##Default for server
 server_default:
