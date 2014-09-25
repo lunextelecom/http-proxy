@@ -78,25 +78,25 @@ servers:
 routes:	
 	- name: did
 	  url: * /didv2/dids.*
-	  target: did_server
+	  server: did_server
 	  logging: off
 
 	- name: new_order
 	  url: POST /pos/.+/orders/.+
-	  target: pos_server
+	  server: pos_server
 	  metric: {server_name}.{route_name}_{response_code}
 
 #match /product, /products, /sku, skus
 	- name: catalog
 	  url: * /(product(?=s| )|sku(?=s| ))/.*
-	  target: 192.168.93.107 #balancer, health is default from server_default
+	  server: 192.168.93.107 #balancer, health is default from server_default
 
 #map all url to old server
 #logging all req, req
 #target can also point directly to an ip instead of server
 	- name: unmapped
 	  url: * .*
-	  target: 192.168.93.102:8080 	  
+	  server: 192.168.93.102:8080 	  
 	  logging: req
 ```
 
