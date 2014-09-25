@@ -88,7 +88,7 @@ routes:
 #match /product, /products, /sku, skus
 	- name: catalog
 	  url: * /(product(?=s| )|sku(?=s| ))/.*
-	  target: 192.168.93.107 #balancer, health is default from route_default
+	  target: 192.168.93.107 #balancer, health is default from server_default
 
 #map all url to old server
 #logging all req, req
