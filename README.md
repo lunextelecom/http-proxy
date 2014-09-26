@@ -95,7 +95,7 @@ routes:
 
 #match /product, /products, /sku, skus
 	- name: catalog
-	  url: "* /(product(?=s| )|sku(?=s| ))/.*"
+	  url: "* /(product(s|)|sku(s|))/.*"
 	  server: catalog_server #balancer, health is default from server_default
 
 #map all url to old server
