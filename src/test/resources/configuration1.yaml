@@ -1,39 +1,41 @@
-#Routing
-Routing:
-  - Regexp: /didv2/dids?.
-    Balancer: RR
-    Target: 10.9.9.62:8090
-  - Regexp: /atsys/ws/json.
-    Balancer: RR
-    Target: 10.9.9.61:8801,10.9.9.61:8802
-  - Regexp: /health?.
-    Balancer: RR
-    Target: 10.9.9.62:9004,10.9.9.62:9005
+route_default:  
+    logging: req, req_body(POST,PUT), resp_body(POST)
+    metric: "test.http_proxy.{server_name}.{verb}_{route_name}_{response_code}"
 
-#Logging
-Logging:
-  - Regexp: /didv2/dids?.
-    Verb: GET
-    Option: 'on'
-  - Regexp: /atsys/ws/json.
-    Verb: NONE
-    Option: request, request_header, request_body, response_body
-  - Regexp: /health?.
-    Verb: POST
-    Option: 'off'
+server_default:
+    balancer: rr
+    health: /health
 
-#Metric
-Metric:
-  - Regexp: /didv2/dids?.
-    Verb: GET
-    Metric: test.http.proxy.target.get_request
-  - Regexp: /atsys/ws/json.
-    Verb: DELETE
-    Metric: test.http.proxy.target.get_request_ats
-  - Regexp: /health?.
-    Verb: POST
-    Metric: test.http.proxy.target.get_request_health
+servers:
+    - name: health_server
+      target: 10.9.9.62:9004
+      health : /
+    - name: pos_server
+      target: 192.168.93.100:9090,192.168.93.101:9090
+      health: /myhealth
+    - name: catalog
+      target: 192.168.93.100:9090/build_123,192.168.93.101:9090/build_123
+      health: ping
+    - name: default_server
+      target: 192.168.93.102:8080
 
-#IPFilter:    
-IPFilter:
-  - List: 192.168.1.133, 192.168.1.128, 192.168.1.129, 192.168.1.130, 127.0.0.2
+routes: 
+    - name: get_list
+      url: "GET /list.*"
+      server: health_server
+      logging: req
+
+    - name: new_order
+      url: "POST /pos/.+/orders/.+"
+      server: pos_server
+      metric: "{server_name}.{route_name}_{response_code}"
+
+    - name: catalog
+      url: "* /(product(s|)|sku(s|))/.*"
+      server: catalog_server #balancer, health is default from server_default
+      logging: req, req_body(*)
+      
+    - name: unmapped
+      url: "* .*"
+      server: default_server
+      logging: 'off'      

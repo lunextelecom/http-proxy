@@ -14,8 +14,6 @@ import io.netty.handler.logging.LoggingHandler;
 
 /**
  * Netty server for http protocol
- * 
- * @author BaoLe
  *
  */
 public class HttpProxySnoopServer {
@@ -28,7 +26,7 @@ public class HttpProxySnoopServer {
   private EventLoopGroup bossGroup;
   private EventLoopGroup workerGroup;
 
-  public int numThread = 1;
+  public int numThread = 1000;
 
   public HttpProxySnoopServer(int port) {
     this.port = port;
@@ -37,14 +35,13 @@ public class HttpProxySnoopServer {
   /**
    * Start HTTP server to listen request from client
    * 
-   * @author BaoLe
    * @throws Exception
    */
   public synchronized void startServer() throws Exception {
 
     // Configure the server.
     bossGroup = new NioEventLoopGroup(numThread);
-    workerGroup = new NioEventLoopGroup();
+    workerGroup = new NioEventLoopGroup(numThread);
     try {
       bootStrap = new ServerBootstrap();
       bootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
@@ -63,8 +60,6 @@ public class HttpProxySnoopServer {
 
   /**
    * Shutdown server
-   * 
-   * @author BaoLe
    */
   public synchronized void stopServer() {
     channel.close();

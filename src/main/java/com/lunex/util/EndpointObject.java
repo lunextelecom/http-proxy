@@ -1,10 +1,9 @@
 package com.lunex.util;
 
-import com.lunex.util.Constants.EEndpointStatus;
+import com.lunex.enums.EEndpointStatus;
 
 /**
  * The Class EndpointObject.
- * @author DuyNguyen
  */
 public class EndpointObject {
 

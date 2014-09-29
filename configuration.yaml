@@ -1,35 +1,42 @@
-#Routing rule for Aggregate multiple webservice endpoint
-Routing:
-  - Regexp: /didv2/dids?.
-    Balancer: RR
-    Target: 10.9.9.62:8090
-  - Regexp: /atsys/ws/json.
-    Balancer: RR
-    Target: 10.9.9.61:8803,10.9.9.61:8803
-  - Regexp: /health?.
-    Balancer: RR
-    Target: 10.9.9.62:9004,10.9.9.62:9005
-#Logging
-Logging:
-  - Regexp: /didv2/dids?.
-    Verb: GET
-    Option: 'on'
-  - Regexp: /didv2/dids?.
-    Verb: NONE
-    Option: request, request_header, request_body, response_body
-  - Regexp: /atsys/ws/json.
-    Verb: GET
-    Option: 'off'#Metric naming
-#URL(regex) verb = metric
-Metric:
-  - Regexp: /didv2/dids?.
-    Verb: GET
-    Metric: test.http.proxy.target.get_request
-  - Regexp: /atsys/ws/json.
-    Verb: GET
-    Metric: test.http.proxy.target.get_request
-  - Regexp: /health?.
-    Verb: GET
-    Metric: test.http.proxy.target.get_request_health
-IPFilter:
-  - List: 192.168.1.133,192.168.1.128
+route_default:  
+    logging: req, req_body(POST,PUT), resp_body(POST)
+    metric: "test.http_proxy.{server_name}.{verb}_{route_name}_{response_code}"
+
+server_default:
+    balancer: rr
+    health: 'off'
+
+servers:
+    - name: health_server
+      target: 10.9.9.62:9004
+      health : /
+
+    - name: dummy_server
+      target: 192.168.93.61:9090/dummyws
+      health : /home
+
+    - name: authen_server
+      target: 10.9.9.62:8090
+      health : 'off'
+
+routes: 
+    - name: get_list
+      url: "GET /list.*"
+      server: health_server
+      logging: req
+
+    - name: get_health
+      url: "GET /health"
+      server: health_server
+      logging: req
+
+    - name: dummy_home
+      url: "GET /home"
+      server: dummy_server
+      logging: 'off'
+
+    - name: dummy_authen
+      url: "GET /authsvc/"
+      server: authen_server
+      logging: 'off'
+    

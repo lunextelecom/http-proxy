@@ -11,8 +11,6 @@ import com.timgroup.statsd.StatsDClient;
 /**
  * Statsd client for write metric
  * 
- * @author BaoLe
- *
  */
 public class Statsd {
 
@@ -23,7 +21,6 @@ public class Statsd {
   /**
    * Create StatsD client for write metric
    * 
-   * @author BaoLe
    * @param metric
    * @param host
    * @param port
@@ -51,7 +48,6 @@ public class Statsd {
   /**
    * Constructor
    * 
-   * @author BaoLe
    * @param metric
    * @param start
    * @param host
@@ -65,7 +61,6 @@ public class Statsd {
   /**
    * Constructor
    * 
-   * @author BaoLe
    * @param client
    * @param start
    */
@@ -77,7 +72,6 @@ public class Statsd {
   /**
    * Start measure metric
    * 
-   * @author BaoLe
    * @param metric
    * @param host
    * @param port
@@ -86,11 +80,14 @@ public class Statsd {
   public static Statsd start(String metric, String host, int port) {
     return new Statsd(metric, System.currentTimeMillis(), host, port);
   }
+  
+  public static Statsd start(String metric, long start, String host, int port) {
+    return new Statsd(metric, start, host, port);
+  }
 
   /**
    * Stop measure and write metric
    * 
-   * @author BaoLe
    * @param aspect
    * @return
    */
@@ -107,6 +104,16 @@ public class Statsd {
       return t;
     }
     return 0;
+  }
+  public static void main(String[] args) {
+    try {
+      Statsd client = Statsd.start("test.http_proxy.health_server.get_list", "192.168.93.112", 8125);
+      Thread.sleep(1000);
+      client.stop("200");
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
 }

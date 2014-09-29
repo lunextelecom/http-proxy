@@ -5,9 +5,6 @@ import java.util.List;
 
 import com.lunex.util.HostAndPort;
 
-/**
- * @author BaoLe
- */
 public interface ILoadBalancer {
 
     boolean init();

@@ -8,8 +8,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.lunex.cassandra.CassandraRepository;
-import com.lunex.util.Constants.EEndpointStatus;
-import com.lunex.util.Constants.EVerb;
+import com.lunex.enums.EEndpointStatus;
+import com.lunex.enums.EVerb;
 import com.lunex.util.EndpointObject;
 import com.lunex.util.LogObject;
 

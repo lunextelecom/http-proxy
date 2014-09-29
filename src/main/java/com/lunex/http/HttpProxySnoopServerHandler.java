@@ -15,52 +15,58 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.SocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.lunex.balancing.IBalancingStrategy;
+import com.lunex.enums.EVerb;
+import com.lunex.exceptions.AuthenticationtException;
+import com.lunex.exceptions.BadRequestException;
+import com.lunex.exceptions.InternalServerErrorException;
+import com.lunex.exceptions.ReloadConfiguration;
 import com.lunex.logging.LoggingProcessor;
 import com.lunex.logging.Statsd;
-import com.lunex.rule.MetricRulePattern;
-import com.lunex.rule.RoutingRulePattern;
+import com.lunex.rule.RouteInfo;
+import com.lunex.rule.ServerInfo;
 import com.lunex.util.Configuration;
 import com.lunex.util.Constants;
-import com.lunex.util.Constants.EVerb;
 import com.lunex.util.HostAndPort;
 import com.lunex.util.LogObject;
 import com.lunex.util.ParameterHandler;
 
 /**
  * Server handler for netty server
- * 
- * @author BaoLe
- * @update DuyNguyen
  */
 public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
   private LastHttpContent trailer;
-  private RoutingRulePattern routingRulePattern;
-  private MetricRulePattern metricRulePattern;
+  private RouteInfo selectedRoute;
   private Statsd statsd;
+  private long metricStartTime = 0;
   private String statusResponse;
 
   private HttpRequest request;
+  
+  private HttpMethod method;
   private Boolean isException = false;
   private Exception exception;
   private HttpContent requestContent;
@@ -84,7 +90,6 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     } else {
       ctx.flush();
     }
-
     this.processLogging();
   }
 
@@ -95,7 +100,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       Channel channel = ctx.channel();
       SocketAddress address = channel.remoteAddress();
       
-      //basic authenticate
+     /* //basic authenticate
       boolean isOK = authenticateFilter();
       if(!isOK){
         return;
@@ -104,9 +109,21 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       isOK = ipFilter(address.toString());
       if(!isOK){
         return;
+      }*/
+      
+      //check reloadconfiguration
+      Matcher m = Configuration.getReloadPattern().matcher(this.request.getUri());
+      if (m.find()){
+        boolean auth = authenticateFilter();
+        if(auth){
+          Configuration.reloadConfig();
+          isException = true;
+          exception = new ReloadConfiguration();
+        }
+        return ;
       }
-
-      routingRulePattern = Configuration.getRoutingRule().selectRulePattern(this.request.getUri());
+      
+      selectedRoute = Configuration.getProxyRule().selectRouteInfo(this.request.getUri());
       responseContentBuilder.setLength(0);
       logObject = new LogObject();
       logObject.setRequest(this.request.getUri());
@@ -114,10 +131,10 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       logObject.setMethod(EVerb.valueOf(this.request.getMethod().toString()));
       logObject.setClient(address.toString());
     }
-
     if (msg instanceof HttpContent) {
       if (!isException) {
         HttpContent httpContent = (HttpContent) msg;
+        logObject.setRequestContent("");
         if (httpContent.content() != null && httpContent.content().isReadable()) {
           String dataContent = httpContent.content().toString(CharsetUtil.UTF_8);
           logObject.setRequestContent(dataContent);
@@ -136,30 +153,37 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
   /**
    * Submit request to target from Balancer
    * 
-   * @author BaoLe
    */
   private void processCallTarget() {
     if (request == null) {
       return;
     }
-    if (routingRulePattern == null) {
+    if (selectedRoute == null) {
       return;
     }
+    method = request.getMethod();
     final CountDownLatch responseWaiter = new CountDownLatch(1);
-    HostAndPort target = routingRulePattern.getBalancingStrategy().selectTarget();
+    ServerInfo selectedServer = Configuration.getProxyRule().selectServerInfo(selectedRoute);
+    HostAndPort target = null;
+    if (selectedServer != null) {
+      IBalancingStrategy balancing = selectedServer.getBalancingStrategy();
+      if(balancing != null){
+        target = balancing.selectTarget(selectedServer.getTargets());
+      }
+    }
     if (target == null) {
       logger.error("target is null");
       responseContentBuilder.append("Target is null");
+      isException = true;
+      exception = new InternalServerErrorException(new Exception("Can't find any available server for this request"));
       return;
     }
-    String targetUrl = target.getHost() + ":" + target.getPort();
-    logObject.setTarget(targetUrl);
+    logObject.setTarget(target.toString());
 
-    HttpProxySnoopClient client = new HttpProxySnoopClient(targetUrl, new CallbackHTTPVisitor() {
+    HttpProxySnoopClient client = new HttpProxySnoopClient(target, new CallbackHTTPVisitor() {
       @Override
       public void doJob(ChannelHandlerContext ctx, HttpObject msg) {
         super.doJob(ctx, msg);
-        responseWaiter.countDown();
         if (msg instanceof DefaultHttpResponse) {
           defaultHttpResponse = (DefaultHttpResponse) msg;
           HttpResponseStatus st = defaultHttpResponse.getStatus();
@@ -176,16 +200,16 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
             logObject.setResponseContent(dataContent);
           }
         }
+        if(msg instanceof LastHttpContent){
+          responseWaiter.countDown();
+        }
       }
     });
     try {
       // start write metric
-      metricRulePattern = Configuration.getMetricRule().selectRulePattern(this.request);
-      if (metricRulePattern != null) {
-        String metric =
-            metricRulePattern.getMetric().replace("target.",
-                targetUrl.replace(".", "_").replace(":", "_") + ".");
-        statsd = Statsd.start(metric, ParameterHandler.METRIC_HOST, ParameterHandler.METRIC_PORT);
+      String metric = selectedRoute.getMetric();
+      if (Strings.isNullOrEmpty(metric)) {
+        metricStartTime = System.currentTimeMillis();
       }
       client.submitRequest(request, requestContent);
     } catch (Exception e) {
@@ -195,7 +219,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       logger.error(e.getMessage());
     }
     try {
-      responseWaiter.await(3, TimeUnit.SECONDS);
+      responseWaiter.await(60, TimeUnit.SECONDS);
       client.shutdown();
       logger.info("Shutdown client");
     } catch (InterruptedException e) {
@@ -206,7 +230,6 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
   /**
    * Write response from http client to client of netty server
    * 
-   * @author BaoLe
    * @param currentObj
    * @param ctx
    * @return
@@ -215,13 +238,12 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     logger.info("Write response");
     // Decide whether to close the connection or not.
     boolean keepAlive = isKeepAlive(request);
-
     // Build the response object.
     FullHttpResponse response =
         new DefaultFullHttpResponse(defaultHttpResponse.getProtocolVersion(),
             defaultHttpResponse.getStatus(), Unpooled.copiedBuffer(
                 responseContentBuilder.toString(), CharsetUtil.UTF_8));
-
+    logger.info("Final content:" +  responseContentBuilder.toString());
     response.headers().set(CONTENT_TYPE, defaultHttpResponse.headers().get("Content-Type"));
 
     if (keepAlive) {
@@ -234,26 +256,32 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
     // Write the response.
     ctx.writeAndFlush(response);
-
     return keepAlive;
   }
 
   /**
    * Process logging(logging + metric)
    * 
-   * @author BaoLe
-   * @update DuyNguyen
    */
   private void processLogging() {
     Thread threadLogging = new Thread(new Runnable() {
       public void run() {
         // stop and write metric
-        if (statsd != null) {
-          statsd.stop(statusResponse);
+        if (metricStartTime > 0) {
+          String metric = selectedRoute.getMetric();
+          if(!Strings.isNullOrEmpty(metric)){
+            metric = metric.replace("{server_name}", selectedRoute.getServer())
+                .replace("{verb}", selectedRoute.getVerd().toString())
+                .replace("{route_name}", selectedRoute.getName())
+                .replace("{response_code}", statusResponse);
+            statsd = Statsd.start(metric, metricStartTime, ParameterHandler.METRIC_HOST, ParameterHandler.METRIC_PORT);
+            statsd.stop(statusResponse);
+          }
         }
-        
-        //write logging
-        LoggingProcessor.writeLogging(logObject, Configuration.getLoggingRule());
+        if(selectedRoute.getLoggings() != null && !selectedRoute.getLoggings().isEmpty()){
+          //write logging
+          LoggingProcessor.writeLogging(method, logObject, selectedRoute);
+        }
       }
     });
     threadLogging.start();
@@ -269,52 +297,48 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     String username = this.request.headers().get(Constants.USERNAME_PRO);
     String password = this.request.headers().get(Constants.PASSWORD_PRO);
     if (Strings.isNullOrEmpty(username) || Strings.isNullOrEmpty(password)) {
-      logger.info("authenticate failed");
-      isException = true;
-      exception = new BadRequestException(new Exception("authenticate failed"));
       res = false;
     } else {
-      if (!Constants.AUTH_STR.equalsIgnoreCase(username)
-          || !Constants.AUTH_STR.equalsIgnoreCase(password)) {
-        logger.info("authenticate failed");
-        isException = true;
-        exception = new BadRequestException(new Exception("authenticate failed"));
+      if (!Constants.AUTH_STR.equalsIgnoreCase(username) || !Constants.AUTH_STR.equalsIgnoreCase(password)) {
         res = false;
       }
     }
-    return res;
-  }
-  
-  /**
-   * Ip filter.
-   *
-   * @param address the address
-   * @return true, if ip is not restricted
-   */
-  private boolean ipFilter(String address){
-    boolean res = true;
-    String tmp = address.split(":")[0].replace("/", "").trim();
-    if (Configuration.getIpFilterRule().getHosts().contains(tmp)) {
-      logger.info("ipfilter restrict");
+    if(!res){
+      logger.info("Authentication failed");
       isException = true;
-      exception = new BadRequestException(new Exception("ipfilter restrict"));
-      res = false;
+      exception = new AuthenticationtException();
     }
     return res;
   }
+//  
+//  /**
+//   * Ip filter.
+//   *
+//   * @param address the address
+//   * @return true, if ip is not restricted
+//   */
+//  private boolean ipFilter(String address){
+//    boolean res = true;
+//    String tmp = address.split(":")[0].replace("/", "").trim();
+//    if (Configuration.getIpFilterRule().getHosts().contains(tmp)) {
+//      logger.info("ipfilter restrict");
+//      isException = true;
+//      exception = new IpFilteringException(new Exception("IP restrictions"));
+//      res = false;
+//    }
+//    return res;
+//  }
   
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     logger.error("Exception caught", cause);
 
-    HttpResponseStatus status =
-        (cause instanceof BadRequestException) ? BAD_REQUEST : INTERNAL_SERVER_ERROR;
-
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter printWriter = new PrintWriter(stringWriter);
-    cause.printStackTrace(printWriter);
-    String content = stringWriter.toString();
-
+    HttpResponseStatus status =  (cause instanceof BadRequestException) ? BAD_REQUEST : INTERNAL_SERVER_ERROR;
+    String content = "";
+    if(cause instanceof ReloadConfiguration){
+      status = HttpResponseStatus.OK;
+    }
+    content = cause.getMessage();
     FullHttpResponse response =
         new DefaultFullHttpResponse(HTTP_1_1, status, Unpooled.copiedBuffer(content,
             CharsetUtil.UTF_8));

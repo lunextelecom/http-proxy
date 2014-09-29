@@ -10,10 +10,6 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
-
-/**
- * @author DuyNguyen The Class JobScheduler.
- */
 public class JobScheduler {
 
   public static void run() {
@@ -26,7 +22,7 @@ public class JobScheduler {
           TriggerBuilder
               .newTrigger()
               .withSchedule(
-                  SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(10).repeatForever())
+                  SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(10000).repeatForever())
               .build();
 
       // schedule the job

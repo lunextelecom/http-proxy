@@ -8,8 +8,6 @@ import io.netty.handler.codec.http.HttpContentDecompressor;
 
 /**
  * Channel initualizer for netty client
- * 
- * @author BaoLe
  *
  */
 public class HttpProxySnoopClientInitializer extends ChannelInitializer<SocketChannel> {

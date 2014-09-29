@@ -12,8 +12,6 @@ import io.netty.handler.codec.http.LastHttpContent;
 
 /**
  * 
- * @author BaoLe
- * 
  * Handler for netty client
  *
  */

@@ -10,28 +10,21 @@ import com.lunex.util.HostAndPort;
 /**
  * Class RoundRobinBalacingStrategy implement IBalancingStrategy
  * 
- * @author BaoLe
- * @update DuyNguyen
  */
 public class RoundRobinStrategy implements IBalancingStrategy {
 
-  private final List<HostAndPort> targets;
-
   private AtomicInteger currentTarget = new AtomicInteger(0);
+ 
   /**
    * Constructor
    * 
    * @param targets
    */
-  public RoundRobinStrategy(List<HostAndPort> targets) {
-    if ((targets == null) || targets.isEmpty()) {
-      throw new IllegalArgumentException("Target list cannot be null or empty");
-    }
-    this.targets = new CopyOnWriteArrayList<HostAndPort>(targets);
+  public RoundRobinStrategy() {
     this.currentTarget = new AtomicInteger(0);
   }
 
-  public HostAndPort selectTarget() {
+  public HostAndPort selectTarget(List<HostAndPort> targets) {
     Boolean isAlive = false;
     for (HostAndPort server : targets) {
       if(server.isAlive()){
@@ -55,24 +48,16 @@ public class RoundRobinStrategy implements IBalancingStrategy {
         isAlive = false;
         break;
       }
-    }while(this.targets.get(index).isAlive()==false);
+    }while(targets.get(index).isAlive()==false);
     
     if(!isAlive){
       return null;
     }
-    return this.targets.get(index);
-  }
-
-  public HostAndPort selectTarget(String originHost, int originPort) {
-    return null;
-  }
-
-  public List<HostAndPort> geTargetAddresses() {
-    return targets;
+    return targets.get(index);
   }
 
   @Override
   public String toString() {
-    return "targets: " + targets.toString() + ", currentTarget: " + currentTarget.toString();
+    return "CurrentTarget: " + currentTarget.toString();
   }
 }

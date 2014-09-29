@@ -35,8 +35,6 @@ public class CassandraRepository {
   /**
    * Get instance
    * 
-   * @author BaoLe
-   * @update DuyNguyen
    * @return
    */
   public static CassandraRepository getInstance() {
@@ -49,8 +47,6 @@ public class CassandraRepository {
   /**
    * Init connection
    * 
-   * @author BaoLe
-   * @update DuyNguyen
    * @param serverIP
    * @param keyspace
    * @return
@@ -84,7 +80,6 @@ public class CassandraRepository {
   /**
    * Close connect
    * 
-   * @author BaoLe
    * @return
    */
   public boolean closeConnection() {
@@ -100,7 +95,6 @@ public class CassandraRepository {
 
   /**
    * Insert logging.
-   * @author DuyNguyen
    * @param logObject the log object
    */
   public void insertLogging(LogObject logObject){
@@ -123,7 +117,6 @@ public class CassandraRepository {
   
   /**
    * Update endpoint.
-   * @author DuyNguyen
    * @param endpointObject the endpoint object
    */
   public void updateEndpoint(EndpointObject endpointObject){
@@ -141,7 +134,6 @@ public class CassandraRepository {
   /**
    * Execute non query
    * 
-   * @author BaoLe
    * @param sql
    * @param listParams
    * @return

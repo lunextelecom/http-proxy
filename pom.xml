@@ -85,7 +85,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>com.lunex.inputprocessor.App</mainClass>
+					<mainClass>com.lunex.App</mainClass>
 				</configuration>
 			</plugin>
 			<plugin>

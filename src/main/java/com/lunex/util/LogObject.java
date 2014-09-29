@@ -1,10 +1,6 @@
 package com.lunex.util;
 
-import com.lunex.util.Constants.EVerb;
-
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpRequest;
+import com.lunex.enums.EVerb;
 
 public class LogObject {
 

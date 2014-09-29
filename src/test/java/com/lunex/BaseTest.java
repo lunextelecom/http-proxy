@@ -27,7 +27,7 @@ public class BaseTest {
     // one-time initialization code
     System.out.println("@BeforeClass - oneTimeSetUp");
     initEnviroment();
-    Configuration.loadConfig("log4j.properties", "db.properties", "configuration.yaml");
+    Configuration.loadConfig("log4j.properties", "app.properties", "configuration.yaml");
   }
 
   @AfterClass

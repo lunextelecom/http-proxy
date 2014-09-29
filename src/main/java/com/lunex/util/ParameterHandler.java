@@ -14,6 +14,7 @@ public class ParameterHandler {
   
   public static String METRIC_HOST;
   public static int METRIC_PORT;
+  public static int HTTP_PROXY_PORT;
 
   public static void getPropertiesValues(String propFileName) throws IOException {
 
@@ -29,6 +30,8 @@ public class ParameterHandler {
       
       METRIC_HOST = prop.getProperty("METRIC.HOST");
       METRIC_PORT = Integer.valueOf(prop.getProperty("METRIC.PORT"));
+      
+      HTTP_PROXY_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.PORT"));
     } catch (Exception e) {
       e.printStackTrace();
     }

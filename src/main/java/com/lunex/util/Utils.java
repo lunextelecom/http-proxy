@@ -1,34 +1,14 @@
 package com.lunex.util;
 
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.log4j.PropertyConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
-
-import com.lunex.cassandra.CassandraRepository;
-import com.lunex.rule.IpFilterRule;
-import com.lunex.rule.LoggingRule;
-import com.lunex.rule.MetricRule;
-import com.lunex.rule.RoutingRule;
-import com.lunex.util.Constants.EBalancingStrategy;
+import java.net.URL;
 
 /**
  * Utils
- * 
- * @udpate DuyNguyen
- *
  */
 public class Utils {
   public static boolean checkServerAlive(String host, int port){
@@ -45,6 +25,18 @@ public class Utils {
       res = false;
     }
     return res;
+  }
+  
+  // HTTP GET request
+  public static boolean checkServerAlive(String url) {
+    try {
+      HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+      con.setRequestMethod("HEAD");
+      con.setConnectTimeout(2000); // set timeout to 2 seconds
+      return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+    } catch (Exception e) {
+      return false;
+    }
   }
   
 }

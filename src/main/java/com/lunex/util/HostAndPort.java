@@ -1,83 +1,34 @@
 package com.lunex.util;
 
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
- * @update DuyNguyen
- */
+import com.google.common.base.Strings;
+
 public class HostAndPort {
-
-  // constants
-  // ------------------------------------------------------------------------------------------------------
-
-  public static final String ANY = "*";
-  private static final Pattern ANY_PATTERN = Pattern.compile("\\*:(\\d{1,5})");
-  private static final Pattern HOST_PORT_PATTERN = Pattern
-      .compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})");
 
   // configuration
   // --------------------------------------------------------------------------------------------------
 
   private final String host;
   private final int port;
+  private final String url;
   private boolean isAlive = true;
   // constructors
   // ---------------------------------------------------------------------------------------------------
 
 
-  public HostAndPort(int port) {
-    this.host = ANY;
-    this.port = port;
-  }
-
-  public HostAndPort(String host, int port) {
+  public HostAndPort(String host, int port, String url) {
     if ((port < 0) || (port > 65536)) {
       throw new IllegalArgumentException("Port must be in range 0-65536");
     }
     this.host = host;
     this.port = port;
-  }
-
-  // public static methods
-  // ------------------------------------------------------------------------------------------
-
-  public static HostAndPort decode(String string) {
-    // TODO add support for ipv6 and named addresses
-    Matcher m = HOST_PORT_PATTERN.matcher(string);
-    if (m.find()) {
-      // No need to catch potential exception since REGEX ensures this is numeric.
-      int port = Integer.parseInt(m.group(2));
-      return new HostAndPort(m.group(1), port);
-    } else {
-      m = ANY_PATTERN.matcher(string);
-      if (m.find()) {
-        int port = Integer.parseInt(m.group(1));
-        return new HostAndPort(ANY, port);
-      }
+    if(!Strings.isNullOrEmpty(url)){
+      this.url = url;
+    }else{
+      this.url = "";
     }
-
-    return null;
-  }
-
-  // public methods
-  // -------------------------------------------------------------------------------------------------
-
-  public boolean isAnyHost() {
-    return ANY.equals(this.host);
-  }
-
-  // getters & setters
-  // ----------------------------------------------------------------------------------------------
-
-  public String getHost() {
-    return host;
-  }
-
-  public int getPort() {
-    return port;
   }
 
   // low level overrides
@@ -85,9 +36,46 @@ public class HostAndPort {
 
   @Override
   public String toString() {
-    return this.host + ':' + this.port;
+    return this.host + ':' + this.port + this.url;
+  }
+  public static void main(String[] args) {
+    Pattern pattern = Pattern.compile("([^:^/]*):(\\d*)?(.*)?");
+    Matcher matcher = pattern.matcher("10.9.9.61:8080");
+
+    matcher.find();
+
+    String domain   = matcher.group(1);
+    String port     = matcher.group(2);
+    String uri      = matcher.group(3);
+    System.out.println(domain);
+    System.out.println(port);
+    System.out.println(uri);
+    
+    pattern= Pattern.compile("(\\w*)([(](.*)[)])*");
+    matcher = pattern.matcher("post");
+
+    matcher.find();
+
+    System.out.println(matcher.group(1));
+    System.out.println(matcher.group(2));
+    System.out.println(matcher.group(3));
   }
   
+  // getters & setters
+  // ----------------------------------------------------------------------------------------------
+
+  public String getHost() {
+    return host;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public int getPort() {
+    return port;
+  }
+
   public boolean isAlive() {
     return isAlive;
   }
