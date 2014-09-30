@@ -23,17 +23,19 @@ routes:
     - name: get_list
       url: "GET /list.*"
       server: health_server
-      logging: req
+      logging: req(*)
+      metric: 'off'
 
     - name: get_health
       url: "GET /health"
       server: health_server
       logging: req
+      metric: "test.http_proxy.{server_name}.{route_name}_{response_code}"
 
     - name: dummy_home
       url: "GET /home"
       server: dummy_server
-      logging: 'off'
+      logging: req
 
     - name: dummy_authen
       url: "GET /authsvc/"

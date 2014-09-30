@@ -1,22 +1,26 @@
 package com.lunex.rule;
 
-import io.netty.handler.codec.http.HttpMethod;
-
+import java.io.Serializable;
 import java.util.Set;
 
 import com.lunex.enums.ELoggingOption;
 import com.lunex.enums.EVerb;
 
-public class LoggingInfo {
+public class LoggingInfo implements Serializable {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 2760630342324006892L;
 
   private Set<EVerb> verbs;
   
   private ELoggingOption opt;//off, req, req_header, req_body, resp_header, resp_body
 
-  public boolean isWriteLogging(ELoggingOption option, HttpMethod method){
+  public boolean isWriteLogging(ELoggingOption option, String method){
     boolean res = false;
     if(opt != null && opt != ELoggingOption.off && opt == option){
-      if(verbs== null || verbs.contains(EVerb.ALL) || verbs.contains(EVerb.getEVerd(method.name()))){
+      if(verbs== null || verbs.contains(EVerb.ALL) || verbs.contains(EVerb.getEVerd(method))){
         res = true;
       }
     }

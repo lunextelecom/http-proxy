@@ -1,5 +1,6 @@
 package com.lunex.rule;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,8 +15,13 @@ import com.lunex.enums.ELoggingOption;
 import com.lunex.enums.EVerb;
 import com.lunex.util.Configuration;
 
-public class RouteInfo {
+public class RouteInfo implements Serializable {
   
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 7984911931156766485L;
+
   static final Logger logger = LoggerFactory.getLogger(RouteInfo.class);
   private String name;
 
@@ -50,6 +56,9 @@ public class RouteInfo {
       //metric
       if (!Strings.isNullOrEmpty(info.get("metric"))) {
         this.metric = info.get("metric");
+        if(this.metric.equalsIgnoreCase("off")){
+          this.metric = "";
+        }
       }else{
         if(defaultInfo != null){
           this.metric = defaultInfo.getMetric();

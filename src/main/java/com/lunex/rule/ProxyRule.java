@@ -1,5 +1,6 @@
 package com.lunex.rule;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -10,8 +11,13 @@ import com.lunex.enums.ELoggingOption;
  * Class ProxyRule
  * 
  */
-public class ProxyRule {
+public class ProxyRule implements Serializable{
   
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -2537140267845430254L;
+
   private ServerInfo serverDefault;
   
   private RouteInfo routeDefault;

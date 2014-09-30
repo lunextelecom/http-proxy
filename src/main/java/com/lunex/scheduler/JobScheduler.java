@@ -22,7 +22,7 @@ public class JobScheduler {
           TriggerBuilder
               .newTrigger()
               .withSchedule(
-                  SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(10000).repeatForever())
+                  SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(10).repeatForever())
               .build();
 
       // schedule the job

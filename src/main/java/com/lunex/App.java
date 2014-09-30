@@ -1,5 +1,18 @@
 package com.lunex;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.Properties;
+
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,14 +25,22 @@ public class App {
 
   static final Logger logger = LoggerFactory.getLogger(App.class);
   private static HttpProxySnoopServer server;
- 
   public static void main(String[] args) {
-    Configuration.loadConfig("log4j.properties", "app.properties", "configuration.yaml");
+    // load log properties
+    Properties props = new Properties();
+    try {
+      props.load(new FileInputStream("log4j.properties"));
+      PropertyConfigurator.configure(props);
+    } catch (IOException ex) {
+      logger.error(ex.getMessage());
+    }
+    
+    Configuration.loadConfig("app.properties");
     App.startHttpProxy();
     JobScheduler.run();
+    startAutoReloadConfig();
     logger.info("startup done, listening....");
   }
-
 
   /**
    * Start netty server as HTTP proxy
@@ -44,5 +65,49 @@ public class App {
     thread.start();
   }
   
+  public static void startAutoReloadConfig() {
+    try {
+      WatchService watcher = FileSystems.getDefault().newWatchService();
+      Path dir = Paths.get(Configuration.proxyConfigDir);
+      dir.register(watcher, ENTRY_MODIFY);
+
+      logger.info("Watch Service registered for dir: " + dir.getFileName());
+      boolean isExit = false;
+      while (true) {
+        WatchKey key;
+        try {
+          key = watcher.take();
+        } catch (InterruptedException ex) {
+          return;
+        }
+
+        for (WatchEvent<?> event : key.pollEvents()) {
+          WatchEvent.Kind<?> kind = event.kind();
+
+          @SuppressWarnings("unchecked")
+          WatchEvent<Path> ev = (WatchEvent<Path>) event;
+          Path fileName = ev.context();
+
+          if (kind == ENTRY_MODIFY && fileName.toString().equals(Configuration.proxyConfigName)) {
+            Configuration.reloadConfig();
+            isExit = true;
+            logger.info("reload config done");
+            break;
+          }
+        }
+        if(isExit){
+          break;
+        }
+        boolean valid = key.reset();
+        if (!valid) {
+          break;
+        }
+      }
+      startAutoReloadConfig();
+
+    } catch (IOException ex) {
+      logger.error("AutoReload error :", ex);
+    }
+  }
 
 }

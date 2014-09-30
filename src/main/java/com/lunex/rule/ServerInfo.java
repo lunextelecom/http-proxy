@@ -1,5 +1,6 @@
 package com.lunex.rule;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,13 @@ import com.lunex.enums.EBalancingType;
 import com.lunex.util.Configuration;
 import com.lunex.util.HostAndPort;
 
-public class ServerInfo {
+public class ServerInfo implements Serializable {
   
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -6983449929369275996L;
+
   static final Logger logger = LoggerFactory.getLogger(ServerInfo.class);
  
   private String name;
@@ -66,8 +72,8 @@ public class ServerInfo {
         for (String child : info.get("target").split(",")) {
           Matcher matcher = Configuration.getTargetPattern().matcher(child.trim());
           if (matcher.find()) {
-            targets.add(new HostAndPort(matcher.group(1), Integer.parseInt(matcher.group(2)),
-                matcher.group(3)));
+            targets.add(new HostAndPort(matcher.group(1), Integer.parseInt(Strings.isNullOrEmpty(matcher.group(3))?"80":matcher.group(3)),
+                matcher.group(4)));
           }
         }
       } else {

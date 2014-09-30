@@ -1,7 +1,5 @@
 package com.lunex.logging;
 
-import io.netty.handler.codec.http.HttpMethod;
-
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -29,7 +27,7 @@ public class LoggingProcessor {
    * @param logObject
    * @param loggingRule
    */
-  public static void writeLogging(HttpMethod method, LogObject logObject, RouteInfo route) {
+  public static void writeLogging(String method, LogObject logObject, RouteInfo route) {
     if (logObject == null) {
       return;
     }
@@ -53,7 +51,7 @@ public class LoggingProcessor {
    * @param logObject
    * @param logginOptions
    */
-  private static void writeLogging(HttpMethod method, LogObject logObject, Map<ELoggingOption, LoggingInfo> loggings) {
+  private static void writeLogging(String method, LogObject logObject, Map<ELoggingOption, LoggingInfo> loggings) {
 
     if (loggings.containsKey(ELoggingOption.req) && loggings.get(ELoggingOption.req).isWriteLogging(ELoggingOption.req, method)) {
       if (logObject.getRequest() == null) {

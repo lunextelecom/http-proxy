@@ -15,22 +15,20 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,6 @@ import com.lunex.enums.EVerb;
 import com.lunex.exceptions.AuthenticationtException;
 import com.lunex.exceptions.BadRequestException;
 import com.lunex.exceptions.InternalServerErrorException;
-import com.lunex.exceptions.ReloadConfiguration;
 import com.lunex.logging.LoggingProcessor;
 import com.lunex.logging.Statsd;
 import com.lunex.rule.RouteInfo;
@@ -50,6 +47,8 @@ import com.lunex.util.Configuration;
 import com.lunex.util.Constants;
 import com.lunex.util.HostAndPort;
 import com.lunex.util.LogObject;
+import com.lunex.util.LogObjectQueue;
+import com.lunex.util.MetricObjectQueue;
 import com.lunex.util.ParameterHandler;
 
 /**
@@ -58,7 +57,6 @@ import com.lunex.util.ParameterHandler;
 public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
-  private LastHttpContent trailer;
   private RouteInfo selectedRoute;
   private Statsd statsd;
   private long metricStartTime = 0;
@@ -84,7 +82,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       exceptionCaught(ctx, exception);
       return;
     }
-    if (!writeResponse(trailer, ctx)) {
+    if (!writeResponse(ctx)) {
       // If keep-alive is off, close the connection once the content is fully written.
       ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     } else {
@@ -99,31 +97,15 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       this.request = (HttpRequest) msg;
       Channel channel = ctx.channel();
       SocketAddress address = channel.remoteAddress();
-      
-     /* //basic authenticate
-      boolean isOK = authenticateFilter();
-      if(!isOK){
-        return;
+
+      if(Configuration.getMapUrlRoute().containsKey(this.request.getUri())){
+        selectedRoute = Configuration.getMapUrlRoute().get(this.request.getUri());
+      }else{
+        selectedRoute = Configuration.getProxyRule().selectRouteInfo(this.request.getUri());
       }
-      // Ip filter
-      isOK = ipFilter(address.toString());
-      if(!isOK){
-        return;
-      }*/
-      
-      //check reloadconfiguration
-      Matcher m = Configuration.getReloadPattern().matcher(this.request.getUri());
-      if (m.find()){
-        boolean auth = authenticateFilter();
-        if(auth){
-          Configuration.reloadConfig();
-          isException = true;
-          exception = new ReloadConfiguration();
-        }
-        return ;
+      if(selectedRoute!=null){
+        Configuration.getMapUrlRoute().put(this.request.getUri(), selectedRoute);
       }
-      
-      selectedRoute = Configuration.getProxyRule().selectRouteInfo(this.request.getUri());
       responseContentBuilder.setLength(0);
       logObject = new LogObject();
       logObject.setRequest(this.request.getUri());
@@ -131,6 +113,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       logObject.setMethod(EVerb.valueOf(this.request.getMethod().toString()));
       logObject.setClient(address.toString());
     }
+    
     if (msg instanceof HttpContent) {
       if (!isException) {
         HttpContent httpContent = (HttpContent) msg;
@@ -140,9 +123,8 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
           logObject.setRequestContent(dataContent);
         }
         requestContent = httpContent;
-
+        
         if (msg instanceof LastHttpContent) {
-          trailer = (LastHttpContent) msg;
           // call target to request
           this.processCallTarget();
         }
@@ -200,7 +182,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
             logObject.setResponseContent(dataContent);
           }
         }
-        if(msg instanceof LastHttpContent){
+        if (msg instanceof LastHttpContent) {
           responseWaiter.countDown();
         }
       }
@@ -208,7 +190,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     try {
       // start write metric
       String metric = selectedRoute.getMetric();
-      if (Strings.isNullOrEmpty(metric)) {
+      if (!Strings.isNullOrEmpty(metric)) {
         metricStartTime = System.currentTimeMillis();
       }
       client.submitRequest(request, requestContent);
@@ -222,7 +204,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
       responseWaiter.await(60, TimeUnit.SECONDS);
       client.shutdown();
       logger.info("Shutdown client");
-    } catch (InterruptedException e) {
+    } catch (Exception e) {
       logger.error(e.getMessage());
     }
   }
@@ -234,7 +216,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
    * @param ctx
    * @return
    */
-  private boolean writeResponse(HttpObject currentObj, ChannelHandlerContext ctx) {
+  private boolean writeResponse(ChannelHandlerContext ctx) {
     logger.info("Write response");
     // Decide whether to close the connection or not.
     boolean keepAlive = isKeepAlive(request);
@@ -256,6 +238,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
     // Write the response.
     ctx.writeAndFlush(response);
+    
     return keepAlive;
   }
 
@@ -264,81 +247,71 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
    * 
    */
   private void processLogging() {
-    Thread threadLogging = new Thread(new Runnable() {
-      public void run() {
-        // stop and write metric
-        if (metricStartTime > 0) {
-          String metric = selectedRoute.getMetric();
-          if(!Strings.isNullOrEmpty(metric)){
-            metric = metric.replace("{server_name}", selectedRoute.getServer())
-                .replace("{verb}", selectedRoute.getVerd().toString())
-                .replace("{route_name}", selectedRoute.getName())
-                .replace("{response_code}", statusResponse);
-            statsd = Statsd.start(metric, metricStartTime, ParameterHandler.METRIC_HOST, ParameterHandler.METRIC_PORT);
-            statsd.stop(statusResponse);
+    //write metric
+    if(Configuration.getProducer()!=null){
+      if (metricStartTime > 0) {
+        String metric = selectedRoute.getMetric();
+        if(!Strings.isNullOrEmpty(metric)){
+          MetricObjectQueue obj = new MetricObjectQueue();
+          metric = metric.replace("{server_name}", selectedRoute.getServer())
+              .replace("{verb}", selectedRoute.getVerd().toString())
+              .replace("{route_name}", selectedRoute.getName())
+              .replace("{response_code}", statusResponse);
+          obj.setMetric(metric);
+          obj.setMetricStartTime(metricStartTime);
+          obj.setMetricStopTime(System.currentTimeMillis());
+          obj.setStatusResponse(statusResponse);
+          try {
+            logger.info("send MetricObjectQueue message");
+            Configuration.getProducer().sendMessage(obj);
+          } catch (IOException e) {
+            logger.error("sendMessage error ", e);
           }
         }
-        if(selectedRoute.getLoggings() != null && !selectedRoute.getLoggings().isEmpty()){
-          //write logging
-          LoggingProcessor.writeLogging(method, logObject, selectedRoute);
+      }
+      //write logging
+      if(selectedRoute.getLoggings() != null && !selectedRoute.getLoggings().isEmpty()){
+        LogObjectQueue obj = new LogObjectQueue();
+        obj.setLogObject(logObject);
+        obj.setMethodName(method.name());
+        obj.setSelectedRoute(selectedRoute);
+        try {
+          logger.info("send LogObjectQueue message");
+          Configuration.getProducer().sendMessage(obj);
+        } catch (IOException e) {
+          logger.error("sendMessage error ", e);
         }
       }
-    });
-    threadLogging.start();
-  }
-  
-  /**
-   * Authenticate filter.
-   *
-   * @return true, if authenticate success
-   */
-  private boolean authenticateFilter(){
-    boolean res = true;
-    String username = this.request.headers().get(Constants.USERNAME_PRO);
-    String password = this.request.headers().get(Constants.PASSWORD_PRO);
-    if (Strings.isNullOrEmpty(username) || Strings.isNullOrEmpty(password)) {
-      res = false;
-    } else {
-      if (!Constants.AUTH_STR.equalsIgnoreCase(username) || !Constants.AUTH_STR.equalsIgnoreCase(password)) {
-        res = false;
-      }
     }
-    if(!res){
-      logger.info("Authentication failed");
-      isException = true;
-      exception = new AuthenticationtException();
-    }
-    return res;
+//    Thread threadLogging = new Thread(new Runnable() {
+//      public void run() {
+//        // stop and write metric
+//        if (metricStartTime > 0) {
+//          String metric = selectedRoute.getMetric();
+//          if(!Strings.isNullOrEmpty(metric)){
+//            metric = metric.replace("{server_name}", selectedRoute.getServer())
+//                .replace("{verb}", selectedRoute.getVerd().toString())
+//                .replace("{route_name}", selectedRoute.getName())
+//                .replace("{response_code}", statusResponse);
+//            statsd = Statsd.start(metric, metricStartTime, ParameterHandler.METRIC_HOST, ParameterHandler.METRIC_PORT);
+//            statsd.stop(statusResponse);
+//          }
+//        }
+//        if(selectedRoute.getLoggings() != null && !selectedRoute.getLoggings().isEmpty()){
+//          //write logging
+//          LoggingProcessor.writeLogging(method.name(), logObject, selectedRoute);
+//        }
+//      }
+//    });
+//    threadLogging.start();
   }
-//  
-//  /**
-//   * Ip filter.
-//   *
-//   * @param address the address
-//   * @return true, if ip is not restricted
-//   */
-//  private boolean ipFilter(String address){
-//    boolean res = true;
-//    String tmp = address.split(":")[0].replace("/", "").trim();
-//    if (Configuration.getIpFilterRule().getHosts().contains(tmp)) {
-//      logger.info("ipfilter restrict");
-//      isException = true;
-//      exception = new IpFilteringException(new Exception("IP restrictions"));
-//      res = false;
-//    }
-//    return res;
-//  }
   
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     logger.error("Exception caught", cause);
 
     HttpResponseStatus status =  (cause instanceof BadRequestException) ? BAD_REQUEST : INTERNAL_SERVER_ERROR;
-    String content = "";
-    if(cause instanceof ReloadConfiguration){
-      status = HttpResponseStatus.OK;
-    }
-    content = cause.getMessage();
+    String content = cause.getMessage();
     FullHttpResponse response =
         new DefaultFullHttpResponse(HTTP_1_1, status, Unpooled.copiedBuffer(content,
             CharsetUtil.UTF_8));

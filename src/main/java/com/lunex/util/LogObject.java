@@ -1,9 +1,15 @@
 package com.lunex.util;
 
+import java.io.Serializable;
+
 import com.lunex.enums.EVerb;
 
-public class LogObject {
+public class LogObject implements Serializable{
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -5743754818896473288L;
   private String target;
   private String request;
   private String requestContent;

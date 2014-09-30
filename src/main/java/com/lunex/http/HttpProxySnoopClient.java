@@ -10,11 +10,6 @@ import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 
-import java.net.SocketAddress;
-import java.net.URISyntaxException;
-
-import javax.net.ssl.SSLException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +24,6 @@ public class HttpProxySnoopClient {
   public Object msg;
   public Channel ch;
   public EventLoopGroup group;
-
   public HttpProxySnoopClient(HostAndPort address, CallbackHTTPVisitor callback) {
     this.address = address;
     this.callback = callback;
@@ -54,11 +48,15 @@ public class HttpProxySnoopClient {
     }
 
     // Configure the client.
-    group = new NioEventLoopGroup();
+    group = new NioEventLoopGroup(1);
     try {
       Bootstrap b = new Bootstrap();
       b.group(group).channel(NioSocketChannel.class)
-          .handler(new HttpProxySnoopClientInitializer(callback));
+//      .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024)
+//      .option(ChannelOption.TCP_NODELAY, true)
+//      .option(ChannelOption.SO_SNDBUF, 1048576)
+//      .option(ChannelOption.SO_RCVBUF, 1048576)
+      .handler(new HttpProxySnoopClientInitializer(callback));
       // Make the connection attempt.
       ch = b.connect(address.getHost(), address.getPort()).sync().channel();
       // Send the HTTP request.
@@ -74,7 +72,7 @@ public class HttpProxySnoopClient {
       throw ex;
     } finally {
       // Shut down executor threads to exit.
-      // group.shutdownGracefully();
+//       group.shutdownGracefully();
     }
     return ch;
   }

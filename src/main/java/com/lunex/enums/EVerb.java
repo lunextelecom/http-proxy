@@ -1,6 +1,8 @@
 package com.lunex.enums;
 
-public enum EVerb {
+
+public enum EVerb{
+  
   GET("get"), POST("post"), DELETE("delete"), ALL("*");
   private String verd;
 

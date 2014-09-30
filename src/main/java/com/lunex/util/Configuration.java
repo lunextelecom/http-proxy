@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -19,6 +20,8 @@ import org.yaml.snakeyaml.Yaml;
 import com.google.common.base.Strings;
 import com.lunex.cassandra.CassandraRepository;
 import com.lunex.enums.EBalancingType;
+import com.lunex.queue.Producer;
+import com.lunex.queue.QueueConsumer;
 import com.lunex.rule.ProxyRule;
 import com.lunex.rule.RouteInfo;
 import com.lunex.rule.ServerInfo;
@@ -31,6 +34,8 @@ public class Configuration {
 
   static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
+  private static Map<String, RouteInfo> mapUrlRoute = new HashMap<String, RouteInfo>();
+  
   public static Map<String, EBalancingType> MAP_BALANCER_STATEGY;
   static {
       MAP_BALANCER_STATEGY = new HashMap<String, EBalancingType>();
@@ -39,15 +44,31 @@ public class Configuration {
   private static ProxyRule proxyRule = new ProxyRule();
   private static String host = "localhost";
   private static String keyspace = "http_proxy";
-  private static String configFilename = "configuration";
   
   private static int proxyPort = 8080;
+  public static int proxyNumThread;
+  public static String proxyConfigDir;
+  public static String proxyConfigName;
   
-  private static Pattern reloadPattern = Pattern.compile("/http_proxy/reload_config");
-  private static Pattern targetPattern = Pattern.compile("([^:^/]*):(\\d*)?(.*)?");
+  private static Pattern targetPattern = Pattern.compile("([^:|\\/^]*)(:)?(\\d*)?(.*)?");
   private static Pattern loggingPattern = Pattern.compile("(?i)(resp_header|resp_body|req_header|req_body|off|req)\\s*(([\"(\"])((post|put|get|delete|,|\\s*|\\*)*)([\")\"]))*(,)?\\s*");
   private static Pattern routeUrlPattern = Pattern.compile("([a-zA-Z*]+)\\s+(.*)");
 
+  private static QueueConsumer consumer;
+  private static Producer producer;
+
+  public static void initQueue() {
+    try {
+      logger.info("init queue");
+      consumer = new QueueConsumer("loggingQueue");
+      Thread consumerThread = new Thread(consumer);
+      consumerThread.start();
+      
+      producer = new Producer("loggingQueue");
+    } catch (Exception e) {
+      logger.error("loggingQueue error", e);
+    }
+  }
   /**
    * Load config from yaml file
    * 
@@ -63,32 +84,26 @@ public class Configuration {
     return data;
   }
 
-  public static void loadConfig(String log4jFilename, String appFileName, String configFilename){
-    // load log properties
-    Properties props = new Properties();
-    try {
-      props.load(new FileInputStream(log4jFilename));
-      PropertyConfigurator.configure(props);
-    } catch (IOException ex) {
-      logger.error(ex.getMessage());
-    }
+  public static void loadConfig(String appFileName){
+    initQueue();
     //load cassandra
     try {
       ParameterHandler.getPropertiesValues(appFileName);
       Configuration.proxyPort = ParameterHandler.HTTP_PROXY_PORT;
       Configuration.host = ParameterHandler.DB_HOST;
       Configuration.keyspace = ParameterHandler.DB_DBNAME;
+      Configuration.proxyNumThread = ParameterHandler.HTTP_PROXY_NUM_THREAD;
+      Configuration.proxyConfigDir = ParameterHandler.HTTP_PROXY_CONFIG_DIR;
+      Configuration.proxyConfigName = ParameterHandler.HTTP_PROXY_CONFIG_NAME;
       CassandraRepository.getInstance();
     } catch (IOException e) {
       logger.error(e.getMessage());
     }
-    //load config
-    Configuration.configFilename = configFilename;
     reloadConfig();
   }
 
   public static void reloadConfig() {
-    String configFilename = Configuration.getConfigFilename();
+    String configFilename = Configuration.proxyConfigName;
     if(Strings.isNullOrEmpty(configFilename)){
       return;
     }
@@ -147,10 +162,6 @@ public class Configuration {
     return keyspace;
   }
 
-  public static Pattern getReloadPattern() {
-    return reloadPattern;
-  }
-
   public static Pattern getTargetPattern() {
     return targetPattern;
   }
@@ -166,7 +177,10 @@ public class Configuration {
     return proxyPort;
   }
   
-  public static String getConfigFilename() {
-    return configFilename;
+  public static Map<String, RouteInfo> getMapUrlRoute() {
+    return mapUrlRoute;
+  }
+  public static Producer getProducer() {
+    return producer;
   }
 }

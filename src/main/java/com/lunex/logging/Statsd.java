@@ -105,6 +105,19 @@ public class Statsd {
     }
     return 0;
   }
+  public int stop(String aspect, long end) {
+    if (this.client != null) {
+      int t = (int) (end - this.start);
+      this.client.time(aspect, t);
+      try {
+        this.client.stop();
+        logger.info("statsd.stop {} {}", aspect, t);
+      } catch (Exception ex) {
+      }
+      return t;
+    }
+    return 0;
+  }
   public static void main(String[] args) {
     try {
       Statsd client = Statsd.start("test.http_proxy.health_server.get_list", "192.168.93.112", 8125);
