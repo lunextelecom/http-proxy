@@ -9,8 +9,6 @@ import org.apache.commons.lang.SerializationUtils;
 /**
  * The producer endpoint that writes to the queue.
  * 
- * @author syntx
- *
  */
 public class Producer extends EndPoint {
 

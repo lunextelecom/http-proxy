@@ -26,37 +26,65 @@ import com.lunex.rule.ProxyRule;
 import com.lunex.rule.RouteInfo;
 import com.lunex.rule.ServerInfo;
 
+// TODO: Auto-generated Javadoc
 /**
- * Configuration of System
- * 
+ * Configuration of System.
  */
 public class Configuration {
 
+  /** The Constant logger. */
   static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
+  /** The map url route. */
   private static Map<String, RouteInfo> mapUrlRoute = new HashMap<String, RouteInfo>();
   
+  /** The map balancer stategy. */
   public static Map<String, EBalancingType> MAP_BALANCER_STATEGY;
   static {
       MAP_BALANCER_STATEGY = new HashMap<String, EBalancingType>();
       MAP_BALANCER_STATEGY.put("RR", EBalancingType.ROUND_ROBIN);
+      MAP_BALANCER_STATEGY.put("LU", EBalancingType.LEAST_USE);
   }
+  
+  /** The proxy rule. */
   private static ProxyRule proxyRule = new ProxyRule();
+  
+  /** The host. */
   private static String host = "localhost";
+  
+  /** The keyspace. */
   private static String keyspace = "http_proxy";
   
+  /** The proxy port. */
   private static int proxyPort = 8080;
+  
+  /** The proxy num thread. */
   public static int proxyNumThread;
+  
+  /** The proxy config dir. */
   public static String proxyConfigDir;
+  
+  /** The proxy config name. */
   public static String proxyConfigName;
   
+  /** The target pattern. */
   private static Pattern targetPattern = Pattern.compile("([^:|\\/^]*)(:)?(\\d*)?(.*)?");
+  
+  /** The logging pattern. */
   private static Pattern loggingPattern = Pattern.compile("(?i)(resp_header|resp_body|req_header|req_body|off|req)\\s*(([\"(\"])((post|put|get|delete|,|\\s*|\\*)*)([\")\"]))*(,)?\\s*");
+  
+  /** The route url pattern. */
   private static Pattern routeUrlPattern = Pattern.compile("([a-zA-Z*]+)\\s+(.*)");
 
+  /** The consumer. */
   private static QueueConsumer consumer;
+  
+  /** The producer. */
   private static Producer producer;
 
+  /**
+   * Inits the queue.
+   */
   public static void initQueue() {
     try {
       logger.info("init queue");
@@ -69,12 +97,13 @@ public class Configuration {
       logger.error("loggingQueue error", e);
     }
   }
+  
   /**
-   * Load config from yaml file
-   * 
-   * @param filePath
-   * @return
-   * @throws Exception
+   * Load config from yaml file.
+   *
+   * @param filePath the file path
+   * @return the map< string, object>
+   * @throws Exception the exception
    */
   public static Map<String, Object> loadYamlFile(String filePath) throws Exception {
     File file = new File(filePath);
@@ -84,6 +113,11 @@ public class Configuration {
     return data;
   }
 
+  /**
+   * Load config.
+   *
+   * @param appFileName the app file name
+   */
   public static void loadConfig(String appFileName){
     initQueue();
     //load cassandra
@@ -102,6 +136,9 @@ public class Configuration {
     reloadConfig();
   }
 
+  /**
+   * Reload config.
+   */
   public static void reloadConfig() {
     String configFilename = Configuration.proxyConfigName;
     if(Strings.isNullOrEmpty(configFilename)){
@@ -146,40 +183,88 @@ public class Configuration {
     proxyRule.setRoutes(routes);
     proxyRule.setServerDefault(serverDefault);
     proxyRule.setServers(servers);
+    mapUrlRoute = new HashMap<String, RouteInfo>();
   }
 
   /*get, set*/
 
+  /**
+   * Gets the proxy rule.
+   *
+   * @return the proxy rule
+   */
   public static ProxyRule getProxyRule() {
     return proxyRule;
   }
 
+  /**
+   * Gets the host.
+   *
+   * @return the host
+   */
   public static String getHost() {
     return host;
   }
 
+  /**
+   * Gets the keyspace.
+   *
+   * @return the keyspace
+   */
   public static String getKeyspace() {
     return keyspace;
   }
 
+  /**
+   * Gets the target pattern.
+   *
+   * @return the target pattern
+   */
   public static Pattern getTargetPattern() {
     return targetPattern;
   }
 
+  /**
+   * Gets the logging pattern.
+   *
+   * @return the logging pattern
+   */
   public static Pattern getLoggingPattern() {
     return loggingPattern;
   }
+  
+  /**
+   * Gets the route url pattern.
+   *
+   * @return the route url pattern
+   */
   public static Pattern getRouteUrlPattern() {
     return routeUrlPattern;
   }
 
+  /**
+   * Gets the proxy port.
+   *
+   * @return the proxy port
+   */
   public static int getProxyPort() {
     return proxyPort;
   }
   
+  /**
+   * Gets the map url route.
+   *
+   * @return the map url route
+   */
   public static Map<String, RouteInfo> getMapUrlRoute() {
     return mapUrlRoute;
   }
+  
+  /**
+   * Gets the producer.
+   *
+   * @return the producer
+   */
   public static Producer getProducer() {
     return producer;
   }

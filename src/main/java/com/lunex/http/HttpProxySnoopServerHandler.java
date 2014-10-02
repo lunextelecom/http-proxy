@@ -36,20 +36,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 import com.lunex.balancing.IBalancingStrategy;
 import com.lunex.enums.EVerb;
-import com.lunex.exceptions.AuthenticationtException;
 import com.lunex.exceptions.BadRequestException;
 import com.lunex.exceptions.InternalServerErrorException;
-import com.lunex.logging.LoggingProcessor;
-import com.lunex.logging.Statsd;
 import com.lunex.rule.RouteInfo;
 import com.lunex.rule.ServerInfo;
 import com.lunex.util.Configuration;
-import com.lunex.util.Constants;
 import com.lunex.util.HostAndPort;
 import com.lunex.util.LogObject;
 import com.lunex.util.LogObjectQueue;
 import com.lunex.util.MetricObjectQueue;
-import com.lunex.util.ParameterHandler;
 
 /**
  * Server handler for netty server
@@ -58,7 +53,6 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
   static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
   private RouteInfo selectedRoute;
-  private Statsd statsd;
   private long metricStartTime = 0;
   private String statusResponse;
 
@@ -88,7 +82,10 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     } else {
       ctx.flush();
     }
-    this.processLogging();
+    ctx.disconnect();
+    if(selectedRoute != null){
+      this.processLogging();
+    }
   }
 
   @Override
@@ -123,12 +120,11 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
           logObject.setRequestContent(dataContent);
         }
         requestContent = httpContent;
-        
-        if (msg instanceof LastHttpContent) {
-          // call target to request
-          this.processCallTarget();
-        }
       }
+    }
+    if (msg instanceof LastHttpContent) {
+      // call target to request
+      this.processCallTarget();
     }
   }
 
@@ -270,7 +266,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
         }
       }
       //write logging
-      if(selectedRoute.getLoggings() != null && !selectedRoute.getLoggings().isEmpty()){
+      if(!Configuration.getProxyRule().isOffLogging(selectedRoute)){
         LogObjectQueue obj = new LogObjectQueue();
         obj.setLogObject(logObject);
         obj.setMethodName(method.name());
@@ -283,27 +279,6 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
         }
       }
     }
-//    Thread threadLogging = new Thread(new Runnable() {
-//      public void run() {
-//        // stop and write metric
-//        if (metricStartTime > 0) {
-//          String metric = selectedRoute.getMetric();
-//          if(!Strings.isNullOrEmpty(metric)){
-//            metric = metric.replace("{server_name}", selectedRoute.getServer())
-//                .replace("{verb}", selectedRoute.getVerd().toString())
-//                .replace("{route_name}", selectedRoute.getName())
-//                .replace("{response_code}", statusResponse);
-//            statsd = Statsd.start(metric, metricStartTime, ParameterHandler.METRIC_HOST, ParameterHandler.METRIC_PORT);
-//            statsd.stop(statusResponse);
-//          }
-//        }
-//        if(selectedRoute.getLoggings() != null && !selectedRoute.getLoggings().isEmpty()){
-//          //write logging
-//          LoggingProcessor.writeLogging(method.name(), logObject, selectedRoute);
-//        }
-//      }
-//    });
-//    threadLogging.start();
   }
   
   @Override

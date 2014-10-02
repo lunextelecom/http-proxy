@@ -10,8 +10,15 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class JobScheduler.
+ */
 public class JobScheduler {
 
+  /**
+   * Run.
+   */
   public static void run() {
     try {
       // specify the job' s details..

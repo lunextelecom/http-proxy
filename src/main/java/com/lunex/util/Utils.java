@@ -7,10 +7,19 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 
+// TODO: Auto-generated Javadoc
 /**
- * Utils
+ * Utils.
  */
 public class Utils {
+  
+  /**
+   * Check server alive.
+   *
+   * @param host the host
+   * @param port the port
+   * @return true, if check server alive
+   */
   public static boolean checkServerAlive(String host, int port){
     boolean res = true;
     try {
@@ -28,6 +37,12 @@ public class Utils {
   }
   
   // HTTP GET request
+  /**
+   * Check server alive.
+   *
+   * @param url the url
+   * @return true, if check server alive
+   */
   public static boolean checkServerAlive(String url) {
     try {
       HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();

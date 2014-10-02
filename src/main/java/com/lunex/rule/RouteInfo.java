@@ -15,26 +15,42 @@ import com.lunex.enums.ELoggingOption;
 import com.lunex.enums.EVerb;
 import com.lunex.util.Configuration;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class RouteInfo.
+ */
 public class RouteInfo implements Serializable {
   
-  /**
-   * 
-   */
+  /** The Constant serialVersionUID. */
   private static final long serialVersionUID = 7984911931156766485L;
 
+  /** The Constant logger. */
   static final Logger logger = LoggerFactory.getLogger(RouteInfo.class);
+  
+  /** The name. */
   private String name;
 
+  /** The verd. */
   private EVerb verd;
   
+  /** The pattern. */
   private Pattern pattern = null;
   
+  /** The loggings. */
   private Map<ELoggingOption, LoggingInfo> loggings;
   
+  /** The metric. */
   private String metric;
   
+  /** The server. */
   private String server;
 
+  /**
+   * Load config.
+   *
+   * @param info the info
+   * @param defaultInfo the default info
+   */
   public void loadConfig(Map<String, String> info, RouteInfo defaultInfo){
     try {
       //name
@@ -119,6 +135,11 @@ public class RouteInfo implements Serializable {
     }
   }
   
+  /**
+   * The main method.
+   *
+   * @param args the args
+   */
   public static void main(String[] args) {
     Pattern p = Pattern.compile("/home");
     //Matcher m = p.matcher("req, req_body(POST,PUT), resp_body(POST), req(*)");
@@ -129,25 +150,56 @@ public class RouteInfo implements Serializable {
     }
   }
   /*get*/
+  /**
+   * Gets the server.
+   *
+   * @return the server
+   */
   public String getServer() {
     return server;
   }
 
+  /**
+   * Gets the verd.
+   *
+   * @return the verd
+   */
   public EVerb getVerd() {
     return verd;
   }
   
+  /**
+   * Gets the pattern.
+   *
+   * @return the pattern
+   */
   public Pattern getPattern() {
     return pattern;
   }
+  
+  /**
+   * Gets the name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Gets the loggings.
+   *
+   * @return the loggings
+   */
   public Map<ELoggingOption, LoggingInfo> getLoggings() {
     return loggings;
   }
 
+  /**
+   * Gets the metric.
+   *
+   * @return the metric
+   */
   public String getMetric() {
     return metric;
   }

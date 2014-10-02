@@ -52,10 +52,10 @@ public class HttpProxySnoopClient {
     try {
       Bootstrap b = new Bootstrap();
       b.group(group).channel(NioSocketChannel.class)
-//      .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024)
-//      .option(ChannelOption.TCP_NODELAY, true)
-//      .option(ChannelOption.SO_SNDBUF, 1048576)
-//      .option(ChannelOption.SO_RCVBUF, 1048576)
+      .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 10 * 64 * 1024)
+      .option(ChannelOption.TCP_NODELAY, true)
+      .option(ChannelOption.SO_SNDBUF, 1048576)
+      .option(ChannelOption.SO_RCVBUF, 1048576)
       .handler(new HttpProxySnoopClientInitializer(callback));
       // Make the connection attempt.
       ch = b.connect(address.getHost(), address.getPort()).sync().channel();
@@ -65,24 +65,18 @@ public class HttpProxySnoopClient {
               address.getUrl() + request.getUri(), requestContent.content());
       temp.headers().add(request.headers());
       ch.writeAndFlush(temp);
-
-      // Wait for the server to close the connection.
-      // ch.closeFuture().sync();
+      
     } catch (Exception ex) {
       throw ex;
-    } finally {
-      // Shut down executor threads to exit.
-//       group.shutdownGracefully();
-    }
+    } 
     return ch;
   }
 
   /**
    * Shutdown
-   * 
-   * @author BaoLe
    */
   public void shutdown() {
+    ch.disconnect();
     group.shutdownGracefully();
   }
 }

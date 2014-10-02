@@ -9,10 +9,8 @@ import io.netty.handler.codec.http.HttpObject;
  */
 
 public class CallbackHTTPVisitor {
-	
-	//public Object result;
 
-	public void doJob(ChannelHandlerContext ctx, HttpObject msg) {
-		return;
-	}
+  public void doJob(ChannelHandlerContext ctx, HttpObject msg) {
+    return;
+  }
 }

@@ -18,10 +18,18 @@ import com.lunex.util.EndpointObject;
 import com.lunex.util.HostAndPort;
 import com.lunex.util.Utils;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class TelnetJob.
+ */
 public class TelnetJob implements Job {
 
+  /** The log. */
   private Logger log = Logger.getLogger(TelnetJob.class);
 
+  /* (non-Javadoc)
+   * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
+   */
   public void execute(JobExecutionContext jExeCtx) throws JobExecutionException {
     log.info("start telnet job");
     ProxyRule proxyRule = Configuration.getProxyRule();

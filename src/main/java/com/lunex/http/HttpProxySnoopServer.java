@@ -48,8 +48,8 @@ public class HttpProxySnoopServer {
       bootStrap = new ServerBootstrap();
       bootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
           .handler(new LoggingHandler(LogLevel.INFO))
-//          .childOption(ChannelOption.TCP_NODELAY, true)
-//          .childOption(ChannelOption.SO_KEEPALIVE, true)
+          .childOption(ChannelOption.TCP_NODELAY, true)
+          .childOption(ChannelOption.SO_KEEPALIVE, true)
           .childHandler(new HttpProxySnoopServerInitializer());
       channel = bootStrap.bind(port).sync().channel();
 

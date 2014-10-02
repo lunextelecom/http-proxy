@@ -21,10 +21,22 @@ import com.lunex.scheduler.JobScheduler;
 import com.lunex.util.Configuration;
 
 
+/**
+ * The Class App.
+ */
 public class App {
 
+  /** The Constant logger. */
   static final Logger logger = LoggerFactory.getLogger(App.class);
+  
+  /** The server. */
   private static HttpProxySnoopServer server;
+  
+  /**
+   * The main method.
+   *
+   * @param args the args
+   */
   public static void main(String[] args) {
     // load log properties
     Properties props = new Properties();
@@ -36,15 +48,14 @@ public class App {
     }
     
     Configuration.loadConfig("app.properties");
-    App.startHttpProxy();
-    JobScheduler.run();
-    startAutoReloadConfig();
+    startHttpProxy();
+//    JobScheduler.run();
+//    startAutoReloadConfig();
     logger.info("startup done, listening....");
   }
 
   /**
-   * Start netty server as HTTP proxy
-   * 
+   * Start netty server as HTTP proxy.
    */
   public static void startHttpProxy() {
     if (Configuration.getProxyRule().getRoutes() == null || Configuration.getProxyRule().getRoutes().isEmpty() || Configuration.getProxyPort() <= 0) {
@@ -65,6 +76,9 @@ public class App {
     thread.start();
   }
   
+  /**
+   * Start auto reload config.
+   */
   public static void startAutoReloadConfig() {
     try {
       WatchService watcher = FileSystems.getDefault().newWatchService();

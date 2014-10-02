@@ -5,20 +5,48 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ParameterHandler.
+ */
 public class ParameterHandler {
 
+  /** The db host. */
   public static String DB_HOST;
+  
+  /** The db username. */
   public static String DB_USERNAME;
+  
+  /** The db pass. */
   public static String DB_PASS;
+  
+  /** The db dbname. */
   public static String DB_DBNAME;
   
+  /** The metric host. */
   public static String METRIC_HOST;
+  
+  /** The metric port. */
   public static int METRIC_PORT;
+  
+  /** The http proxy port. */
   public static int HTTP_PROXY_PORT;
+  
+  /** The http proxy num thread. */
   public static int HTTP_PROXY_NUM_THREAD;
+  
+  /** The http proxy config dir. */
   public static String HTTP_PROXY_CONFIG_DIR;
+  
+  /** The http proxy config name. */
   public static String HTTP_PROXY_CONFIG_NAME;
 
+  /**
+   * Gets the properties values.
+   *
+   * @param propFileName the prop file name
+   * @throws IOException the IO exception
+   */
   public static void getPropertiesValues(String propFileName) throws IOException {
 
     try {

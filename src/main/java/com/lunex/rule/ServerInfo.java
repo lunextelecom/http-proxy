@@ -11,30 +11,45 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.lunex.balancing.IBalancingStrategy;
+import com.lunex.balancing.LeastUseStrategy;
 import com.lunex.balancing.RoundRobinStrategy;
 import com.lunex.enums.EBalancingType;
 import com.lunex.util.Configuration;
 import com.lunex.util.HostAndPort;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ServerInfo.
+ */
 public class ServerInfo implements Serializable {
   
-  /**
-   * 
-   */
+  /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -6983449929369275996L;
 
+  /** The Constant logger. */
   static final Logger logger = LoggerFactory.getLogger(ServerInfo.class);
  
+  /** The name. */
   private String name;
 
+  /** The balancing type. */
   private EBalancingType balancingType;
   
+  /** The balancing strategy. */
   private IBalancingStrategy balancingStrategy;
 
+  /** The targets. */
   private List<HostAndPort> targets;
   
+  /** The health. */
   private String health = "PING";
 
+  /**
+   * Load config.
+   *
+   * @param info the info
+   * @param defaultInfo the default info
+   */
   public void loadConfig(Map<String, String> info, ServerInfo defaultInfo){
     //load server
     try {
@@ -57,6 +72,9 @@ public class ServerInfo implements Serializable {
         switch (balancingType) {
           case ROUND_ROBIN:
             balancingStrategy = new RoundRobinStrategy();
+            break;
+          case LEAST_USE:
+            balancingStrategy = new LeastUseStrategy();
             break;
           default:
             break;
@@ -87,22 +105,47 @@ public class ServerInfo implements Serializable {
   }
 
   /*get*/
+  /**
+   * Gets the name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Gets the balancing type.
+   *
+   * @return the balancing type
+   */
   public EBalancingType getBalancingType() {
     return balancingType;
   }
 
+  /**
+   * Gets the balancing strategy.
+   *
+   * @return the balancing strategy
+   */
   public IBalancingStrategy getBalancingStrategy() {
     return balancingStrategy;
   }
 
+  /**
+   * Gets the targets.
+   *
+   * @return the targets
+   */
   public List<HostAndPort> getTargets() {
     return targets;
   }
 
+  /**
+   * Gets the health.
+   *
+   * @return the health
+   */
   public String getHealth() {
     return health;
   }

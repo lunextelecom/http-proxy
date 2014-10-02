@@ -9,8 +9,6 @@ import com.rabbitmq.client.ConnectionFactory;
 /**
  * Represents a connection with a queue
  * 
- * @author syntx
- *
  */
 public abstract class EndPoint {
 
