@@ -99,16 +99,22 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
         selectedRoute = Configuration.getMapUrlRoute().get(this.request.getUri());
       }else{
         selectedRoute = Configuration.getProxyRule().selectRouteInfo(this.request.getUri());
+        if(selectedRoute!=null){
+          Configuration.getMapUrlRoute().put(this.request.getUri(), selectedRoute);
+        }
       }
-      if(selectedRoute!=null){
-        Configuration.getMapUrlRoute().put(this.request.getUri(), selectedRoute);
+      if(selectedRoute != null){
+        responseContentBuilder.setLength(0);
+        logObject = new LogObject();
+        logObject.setRequest(this.request.getUri());
+        logObject.setRequestHeaders(((HttpRequest) msg).headers().entries().toString());
+        logObject.setMethod(EVerb.valueOf(this.request.getMethod().toString()));
+        logObject.setClient(address.toString());
+      }else{
+        isException = true;
+        exception = new InternalServerErrorException(new Exception("Can't find any available server for this request"));
+        return;
       }
-      responseContentBuilder.setLength(0);
-      logObject = new LogObject();
-      logObject.setRequest(this.request.getUri());
-      logObject.setRequestHeaders(((HttpRequest) msg).headers().entries().toString());
-      logObject.setMethod(EVerb.valueOf(this.request.getMethod().toString()));
-      logObject.setClient(address.toString());
     }
     
     if (msg instanceof HttpContent) {

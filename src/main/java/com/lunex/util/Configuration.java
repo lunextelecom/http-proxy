@@ -58,11 +58,10 @@ public class Configuration {
   /** The proxy port. */
   private static int proxyPort = 8080;
   
+  private static int proxyAdminPort = 9999;
+  
   /** The proxy num thread. */
   public static int proxyNumThread;
-  
-  /** The proxy config dir. */
-  public static String proxyConfigDir;
   
   /** The proxy config name. */
   public static String proxyConfigName;
@@ -75,6 +74,8 @@ public class Configuration {
   
   /** The route url pattern. */
   private static Pattern routeUrlPattern = Pattern.compile("([a-zA-Z*]+)\\s+(.*)");
+  
+  private static Pattern reloadPattern = Pattern.compile("/http_proxy/reloadconfig$");
 
   /** The consumer. */
   private static QueueConsumer consumer;
@@ -118,16 +119,16 @@ public class Configuration {
    *
    * @param appFileName the app file name
    */
-  public static void loadConfig(String appFileName){
+  public static void loadConfig(String appFileName) throws Exception{
     initQueue();
     //load cassandra
     try {
       ParameterHandler.getPropertiesValues(appFileName);
       Configuration.proxyPort = ParameterHandler.HTTP_PROXY_PORT;
+      Configuration.proxyAdminPort = ParameterHandler.HTTP_PROXY_ADMIN_PORT;
       Configuration.host = ParameterHandler.DB_HOST;
       Configuration.keyspace = ParameterHandler.DB_DBNAME;
       Configuration.proxyNumThread = ParameterHandler.HTTP_PROXY_NUM_THREAD;
-      Configuration.proxyConfigDir = ParameterHandler.HTTP_PROXY_CONFIG_DIR;
       Configuration.proxyConfigName = ParameterHandler.HTTP_PROXY_CONFIG_NAME;
       CassandraRepository.getInstance();
     } catch (IOException e) {
@@ -139,21 +140,16 @@ public class Configuration {
   /**
    * Reload config.
    */
-  public static void reloadConfig() {
+  public static void reloadConfig() throws Exception {
     String configFilename = Configuration.proxyConfigName;
     if(Strings.isNullOrEmpty(configFilename)){
       return;
     }
     // read config
     Map<String, Object> config = null;
-    try {
-      config = Configuration.loadYamlFile(configFilename);
-    } catch (Exception e1) {
-      e1.printStackTrace();
-      logger.error(e1.getMessage());
-    }
+    config = Configuration.loadYamlFile(configFilename);
     if (config == null) {
-      return;
+      throw new Exception("config invalid");
     }
     Map<String, ServerInfo> servers = new HashMap<>();
     List<RouteInfo> routes = new ArrayList<>();
@@ -267,5 +263,14 @@ public class Configuration {
    */
   public static Producer getProducer() {
     return producer;
+  }
+  
+  
+  public static Pattern getReloadPattern() {
+    return reloadPattern;
+  }
+
+  public static int getProxyAdminPort() {
+    return proxyAdminPort;
   }
 }

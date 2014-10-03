@@ -13,7 +13,7 @@ import com.lunex.util.Configuration;
 public class LoadLoggingRuleTest {
 
   @BeforeClass
-  public static void oneTimeSetUp() {
+  public static void oneTimeSetUp() throws Exception {
     // one-time initialization code
     System.out.println("@BeforeClass - oneTimeSetUp");
     Configuration.loadConfig("app_test.properties");

@@ -10,7 +10,6 @@ servers:
     - name: health_server
       target: 10.9.9.62:9004
       health : /
-
     - name: dummy_server
       target: 192.168.93.61:9090/dummyws
       health : /home

@@ -1,15 +1,7 @@
 package com.lunex;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -17,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lunex.http.HttpProxySnoopServer;
+import com.lunex.http.admin.HttpProxyAdminServer;
 import com.lunex.scheduler.JobScheduler;
 import com.lunex.util.Configuration;
 
@@ -31,6 +24,9 @@ public class App {
   
   /** The server. */
   private static HttpProxySnoopServer server;
+  
+  /** The admin */
+  private static HttpProxyAdminServer admin;
   
   /**
    * The main method.
@@ -47,10 +43,15 @@ public class App {
       logger.error(ex.getMessage());
     }
     
-    Configuration.loadConfig("app.properties");
+    try {
+      Configuration.loadConfig("app.properties");
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
     startHttpProxy();
-//    JobScheduler.run();
-//    startAutoReloadConfig();
+    startAdmin();
+    JobScheduler.run();
+    
     logger.info("startup done, listening....");
   }
 
@@ -77,51 +78,25 @@ public class App {
   }
   
   /**
-   * Start auto reload config.
+   * Start admin
    */
-  public static void startAutoReloadConfig() {
-    try {
-      WatchService watcher = FileSystems.getDefault().newWatchService();
-      Path dir = Paths.get(Configuration.proxyConfigDir);
-      dir.register(watcher, ENTRY_MODIFY);
+  public static void startAdmin() {
+    if (Configuration.getProxyAdminPort() <= 0) {
+      logger.error("Can not load config or config invalid", new NullPointerException());
+      return;
+    }
+    admin = new HttpProxyAdminServer(Configuration.getProxyAdminPort());
+    Thread thread = new Thread(new Runnable() {
 
-      logger.info("Watch Service registered for dir: " + dir.getFileName());
-      boolean isExit = false;
-      while (true) {
-        WatchKey key;
+      public void run() {
         try {
-          key = watcher.take();
-        } catch (InterruptedException ex) {
-          return;
-        }
-
-        for (WatchEvent<?> event : key.pollEvents()) {
-          WatchEvent.Kind<?> kind = event.kind();
-
-          @SuppressWarnings("unchecked")
-          WatchEvent<Path> ev = (WatchEvent<Path>) event;
-          Path fileName = ev.context();
-
-          if (kind == ENTRY_MODIFY && fileName.toString().equals(Configuration.proxyConfigName)) {
-            Configuration.reloadConfig();
-            isExit = true;
-            logger.info("reload config done");
-            break;
-          }
-        }
-        if(isExit){
-          break;
-        }
-        boolean valid = key.reset();
-        if (!valid) {
-          break;
+          admin.startServer();
+        } catch (Exception e) {
+          e.printStackTrace();
         }
       }
-      startAutoReloadConfig();
-
-    } catch (IOException ex) {
-      logger.error("AutoReload error :", ex);
-    }
+    });
+    thread.start();
   }
 
 }

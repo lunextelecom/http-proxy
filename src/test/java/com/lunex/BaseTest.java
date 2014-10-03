@@ -23,7 +23,7 @@ public class BaseTest {
   Session session;
 
   @BeforeClass
-  public static void oneTimeSetUp() {
+  public static void oneTimeSetUp() throws Exception {
     // one-time initialization code
     System.out.println("@BeforeClass - oneTimeSetUp");
     initEnviroment();

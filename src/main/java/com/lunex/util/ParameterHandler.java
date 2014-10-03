@@ -32,11 +32,10 @@ public class ParameterHandler {
   /** The http proxy port. */
   public static int HTTP_PROXY_PORT;
   
+  public static int HTTP_PROXY_ADMIN_PORT;
+  
   /** The http proxy num thread. */
   public static int HTTP_PROXY_NUM_THREAD;
-  
-  /** The http proxy config dir. */
-  public static String HTTP_PROXY_CONFIG_DIR;
   
   /** The http proxy config name. */
   public static String HTTP_PROXY_CONFIG_NAME;
@@ -63,8 +62,8 @@ public class ParameterHandler {
       METRIC_PORT = Integer.valueOf(prop.getProperty("METRIC.PORT"));
       
       HTTP_PROXY_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.PORT"));
+      HTTP_PROXY_ADMIN_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.ADMIN_PORT"));
       HTTP_PROXY_NUM_THREAD = Integer.valueOf(prop.getProperty("HTTP_PROXY.NUM_THREAD"));
-      HTTP_PROXY_CONFIG_DIR = prop.getProperty("HTTP_PROXY.CONFIG_DIR");
       HTTP_PROXY_CONFIG_NAME = prop.getProperty("HTTP_PROXY.CONFIG_NAME");
     } catch (Exception e) {
       e.printStackTrace();
