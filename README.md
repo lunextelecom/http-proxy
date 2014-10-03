@@ -107,4 +107,29 @@ routes:
 	  logging: req      
 ```
 
-
+## How to use
+- Prerequisite
+  - Install rabitmq on running machine http://www.rabbitmq.com/install-debian.html  	
+  - Create http_proxy keyspace, logging, endpoint columnfamily  
+    CREATE KEYSPACE http_proxy WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 };  
+    CREATE TABLE http_proxy.logging (target text, url text, updateid timeuuid, client text, method text, request_header text, request_body text, response_body text, PRIMARY KEY (target, url, updateid)) WITH CLUSTERING ORDER BY (url ASC, updateid DESC)  
+    CREATE TABLE http_proxy.endpoint (target text, status int, updateid timeuuid, PRIMARY KEY (target))  
+  - Should increase maximum file open limit (ulimit) 
+    Open /etc/security/limits.conf, add following lines:  
+      username     soft    nofile          65535  
+      username     hard    nofile          65535  
+- app config  
+  DB.HOST = cassandra host  
+  DB.USERNAME =   
+  DB.PASS =   
+  DB.DBNAME = http_proxy  
+  METRIC.HOST = metric host  
+  METRIC.PORT = metric port  
+  HTTP_PROXY.NUM_THREAD = 1000  
+  HTTP_PROXY.PORT = proxy port  
+  HTTP_PROXY.ADMIN_PORT = admin port  
+  HTTP_PROXY.CONFIG_NAME = configuration.yaml  
+- Reload config  
+  http://localhost:admin_port/http_proxy/reloadconfig 
+  (header must have Username:admin, Password:admin properties)
+  
