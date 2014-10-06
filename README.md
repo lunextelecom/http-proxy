@@ -114,7 +114,7 @@ routes:
     Open /etc/security/limits.conf, add following lines:  
       username     soft    nofile          65535  
       username     hard    nofile          65535  
-- app config  
+- App config  
   DB.HOST = cassandra host  
   DB.USERNAME =   
   DB.PASS =   
@@ -128,4 +128,9 @@ routes:
 - Reload config  
   http://localhost:admin_port/http_proxy/reloadconfig 
   (header must have Username:admin, Password:admin properties)
+- Get source  
+  $ git clone https://github.com/lunextelecom/http-proxy.git
+- Install  
+   mvn clean install -DskipTests=true
+- Run: java -jar target/http-proxy-1.0-SNAPSHOT.jar
   
