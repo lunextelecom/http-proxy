@@ -45,14 +45,14 @@ public class App {
     
     try {
       Configuration.loadConfig("app.properties");
+      startHttpProxy();
+      startAdmin();
+      JobScheduler.run();
+      logger.info("startup done, listening....");
     } catch (Exception e) {
       logger.error(e.getMessage());
     }
-    startHttpProxy();
-    startAdmin();
-    JobScheduler.run();
     
-    logger.info("startup done, listening....");
   }
 
   /**

@@ -43,7 +43,11 @@ public class LoggingProcessor {
    * @param logObject
    */
   private static void writeLogging(LogObject logObject) {
-    CassandraRepository.getInstance().insertLogging(logObject);
+    try {
+      CassandraRepository.getInstance().insertLogging(logObject);
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
   }
 
   /**

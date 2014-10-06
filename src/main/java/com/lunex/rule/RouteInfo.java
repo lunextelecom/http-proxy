@@ -51,7 +51,7 @@ public class RouteInfo implements Serializable {
    * @param info the info
    * @param defaultInfo the default info
    */
-  public void loadConfig(Map<String, String> info, RouteInfo defaultInfo){
+  public void loadConfig(Map<String, String> info, RouteInfo defaultInfo) throws Exception{
     try {
       //name
       if (!Strings.isNullOrEmpty(info.get("name"))) {
@@ -122,7 +122,7 @@ public class RouteInfo implements Serializable {
             this.pattern = Pattern.compile(matcher.group(2).trim());
           }
         } catch (Exception e) {
-          logger.error(e.getMessage());
+          throw new Exception("invalid pattern:" + info.get("url"), e);
         }
       }else{
         if(defaultInfo != null){
@@ -131,7 +131,7 @@ public class RouteInfo implements Serializable {
         }
       }
     } catch (Exception e) {
-      logger.error(e.getMessage());
+      throw new Exception("load route failed:", e);
     }
   }
   

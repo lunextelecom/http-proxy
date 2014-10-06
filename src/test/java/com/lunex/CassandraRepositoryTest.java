@@ -18,6 +18,8 @@ public class CassandraRepositoryTest extends BaseTest {
 
   @Test
   public void testInsertLogging() {
+    Boolean thrown = false;
+    try {
     String target = "10.9.9.61:8080";
     LogObject obj = new LogObject();
     obj.setTarget(target);
@@ -31,8 +33,6 @@ public class CassandraRepositoryTest extends BaseTest {
     String sql = "select count(1) from http_proxy.logging where target = ?";
     List<Object> params = new ArrayList<>();
     params.add(target);
-    Boolean thrown = false;
-    try {
       assertEquals(true,CassandraRepository.getInstance().execute(sql, params).one().getLong(0)==1);
     } catch (Exception e) {
       thrown = true;
@@ -42,14 +42,14 @@ public class CassandraRepositoryTest extends BaseTest {
 
   @Test
   public void testUpdateEndpoint() {
+    Boolean thrown = false;
+    try {
     String target = "10.9.9.61:8080";
     EndpointObject obj = new EndpointObject(target, EEndpointStatus.ALIVE);
     CassandraRepository.getInstance().updateEndpoint(obj);
     String sql = "select target, status from http_proxy.endpoint where target = ?";
     List<Object> params = new ArrayList<>();
     params.add(target);
-    Boolean thrown = false;
-    try {
       assertEquals(true,CassandraRepository.getInstance().execute(sql, params).one().getInt("status") == EEndpointStatus.ALIVE.value());
       obj.setStatus(EEndpointStatus.DOWN);
       CassandraRepository.getInstance().updateEndpoint(obj);

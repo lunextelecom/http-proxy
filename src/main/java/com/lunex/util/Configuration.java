@@ -120,20 +120,19 @@ public class Configuration {
    * @param appFileName the app file name
    */
   public static void loadConfig(String appFileName) throws Exception{
+    //init queue
     initQueue();
+    //load parameter
+    ParameterHandler.getPropertiesValues(appFileName);
+    Configuration.proxyPort = ParameterHandler.HTTP_PROXY_PORT;
+    Configuration.proxyAdminPort = ParameterHandler.HTTP_PROXY_ADMIN_PORT;
+    Configuration.host = ParameterHandler.DB_HOST;
+    Configuration.keyspace = ParameterHandler.DB_DBNAME;
+    Configuration.proxyNumThread = ParameterHandler.HTTP_PROXY_NUM_THREAD;
+    Configuration.proxyConfigName = ParameterHandler.HTTP_PROXY_CONFIG_NAME;
     //load cassandra
-    try {
-      ParameterHandler.getPropertiesValues(appFileName);
-      Configuration.proxyPort = ParameterHandler.HTTP_PROXY_PORT;
-      Configuration.proxyAdminPort = ParameterHandler.HTTP_PROXY_ADMIN_PORT;
-      Configuration.host = ParameterHandler.DB_HOST;
-      Configuration.keyspace = ParameterHandler.DB_DBNAME;
-      Configuration.proxyNumThread = ParameterHandler.HTTP_PROXY_NUM_THREAD;
-      Configuration.proxyConfigName = ParameterHandler.HTTP_PROXY_CONFIG_NAME;
-      CassandraRepository.getInstance();
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-    }
+    CassandraRepository.getInstance();
+    //load config
     reloadConfig();
   }
 
