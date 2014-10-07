@@ -11,6 +11,8 @@ public enum EVerb{
   GET("get"), /** GET */
  POST("post"), /** POST */
  DELETE("delete"), /** DELETE. */
+ HEAD("head"), /** HEAD. */
+ PUT("put"), /** PUT. */
  ALL("*");/** all*/
   
   /** The verd. */

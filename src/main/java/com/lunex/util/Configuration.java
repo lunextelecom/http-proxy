@@ -76,6 +76,8 @@ public class Configuration {
   private static Pattern routeUrlPattern = Pattern.compile("([a-zA-Z*]+)\\s+(.*)");
   
   private static Pattern reloadPattern = Pattern.compile("/http_proxy/reloadconfig$");
+  
+  private static Pattern checkHealthPattern = Pattern.compile("/http_proxy/checkhealth$");
 
   /** The consumer. */
   private static QueueConsumer consumer;
@@ -271,5 +273,9 @@ public class Configuration {
 
   public static int getProxyAdminPort() {
     return proxyAdminPort;
+  }
+
+  public static Pattern getCheckHealthPattern() {
+    return checkHealthPattern;
   }
 }

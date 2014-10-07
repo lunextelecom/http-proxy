@@ -221,7 +221,12 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
   private boolean writeResponse(ChannelHandlerContext ctx) {
     logger.info("Write response");
     // Decide whether to close the connection or not.
-    boolean keepAlive = isKeepAlive(request);
+    boolean keepAlive = false;
+    try {
+      keepAlive = isKeepAlive(request);
+    } catch (Exception e) {
+      keepAlive = false;
+    }
     // Build the response object.
     FullHttpResponse response =
         new DefaultFullHttpResponse(defaultHttpResponse.getProtocolVersion(),

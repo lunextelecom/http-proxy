@@ -64,6 +64,7 @@ public class HttpProxySnoopClient {
           new DefaultFullHttpRequest(request.getProtocolVersion(), request.getMethod(),
               address.getUrl() + request.getUri(), requestContent.content());
       temp.headers().add(request.headers());
+      temp.headers().set("Host", address.getHost());
       ch.writeAndFlush(temp);
       
     } catch (Exception ex) {

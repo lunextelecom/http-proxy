@@ -36,6 +36,8 @@ public class HttpProxyAdminServerHandler extends SimpleChannelInboundHandler<Htt
   
   private Boolean isException = false;
   
+  private boolean healthCheck = false;
+  
   private Exception exception;
 
   public HttpProxyAdminServerHandler() {}
@@ -49,11 +51,15 @@ public class HttpProxyAdminServerHandler extends SimpleChannelInboundHandler<Htt
     }
     HttpResponseStatus status = HttpResponseStatus.OK;
     String content = "Reload content OK";
-    try {
-      Configuration.reloadConfig();
-    } catch (Exception e) {
-      status = HttpResponseStatus.BAD_REQUEST;
-      content = "Can not load config or config invalid";
+    if(healthCheck){
+      content = "OK";
+    }else{
+      try {
+        Configuration.reloadConfig();
+      } catch (Exception e) {
+        status = HttpResponseStatus.BAD_REQUEST;
+        content = "Can not load config or config invalid";
+      }
     }
     FullHttpResponse response =
         new DefaultFullHttpResponse(HTTP_1_1, status, Unpooled.copiedBuffer(content,
@@ -113,11 +119,16 @@ public class HttpProxyAdminServerHandler extends SimpleChannelInboundHandler<Htt
   protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
     if (msg instanceof HttpRequest) {
       this.request = (HttpRequest) msg;
+      Matcher matcher = Configuration.getCheckHealthPattern().matcher(this.request.getUri());
+      if(matcher.find()){
+        healthCheck = true;
+        return;
+      }
       if (!authenticateFilter()) {
         isException = true;
         return;
       }
-      Matcher matcher = Configuration.getReloadPattern().matcher(this.request.getUri());
+      matcher = Configuration.getReloadPattern().matcher(this.request.getUri());
       if(!matcher.find()){
         exception = new BadRequestException(new Exception("unknow command"));
         isException = true;
