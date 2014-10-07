@@ -37,17 +37,17 @@ public class App {
     // load log properties
     Properties props = new Properties();
     try {
-      props.load(new FileInputStream("log4j.properties"));
+      props.load(new FileInputStream("src/main/resource/log4j.properties"));
       PropertyConfigurator.configure(props);
     } catch (IOException ex) {
       logger.error(ex.getMessage());
     }
     
     try {
-      Configuration.loadConfig("app.properties");
+      Configuration.loadConfig("src/main/resource/app.properties");
       startHttpProxy();
       startAdmin();
-      JobScheduler.run();
+//      JobScheduler.run();
       logger.info("startup done, listening....");
     } catch (Exception e) {
       logger.error(e.getMessage());

@@ -1,0 +1,18 @@
+route_default:  
+    logging: req, req_body(POST,PUT), resp_body(POST)
+    metric: "test.http_proxy.{server_name}.{verb}_{route_name}_{response_code}"
+
+server_default:
+    balancer: rr
+    health: 'off'
+
+servers:
+    - name: AtsService_server
+      target: test-sysapi.lunextelecom.com
+      health : 'off'
+
+routes: 
+    - name: get_list
+      url: "GET /.*"
+      server: AtsService_server
+      logging: req(*)

@@ -146,7 +146,7 @@ public class Configuration {
     }
     // read config
     Map<String, Object> config = null;
-    config = Configuration.loadYamlFile(configFilename);
+    config = Configuration.loadYamlFile("src/main/resource/" + configFilename);
     if (config == null) {
       throw new Exception("config invalid");
     }
