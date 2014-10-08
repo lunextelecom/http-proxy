@@ -232,7 +232,6 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
         new DefaultFullHttpResponse(defaultHttpResponse.getProtocolVersion(),
             defaultHttpResponse.getStatus(), Unpooled.copiedBuffer(
                 responseContentBuilder.toString(), CharsetUtil.UTF_8));
-    logger.info("Final content:" +  responseContentBuilder.toString());
     response.headers().set(CONTENT_TYPE, defaultHttpResponse.headers().get("Content-Type"));
 
     if (keepAlive) {
