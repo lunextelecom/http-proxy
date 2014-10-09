@@ -86,7 +86,7 @@ routes:
 	- name: did
 	  url: "* /didv2/dids.*"
 	  server: did_server
-	  logging: off
+	  logging: 'off'
 
 	- name: new_order
 	  url: "POST /pos/.+/orders/.+"
@@ -115,16 +115,20 @@ routes:
       username     soft    nofile          65535  
       username     hard    nofile          65535  
 - App config  (/src/main/resource/app.properties)  
-  DB.HOST = cassandra host  
-  DB.USERNAME =   
-  DB.PASS =   
-  DB.DBNAME = http_proxy  
-  METRIC.HOST = metric host  
-  METRIC.PORT = metric port  
-  HTTP_PROXY.NUM_THREAD = 1000  
-  HTTP_PROXY.PORT = proxy port  
-  HTTP_PROXY.ADMIN_PORT = admin port  
-  HTTP_PROXY.CONFIG_NAME = configuration.yaml  
+```
+DB.HOST = cassandra_host
+DB.USERNAME = 
+DB.PASS = 
+DB.DBNAME = http_proxy
+
+METRIC.HOST = metric_host
+METRIC.PORT = metric_port
+
+HTTP_PROXY.NUM_THREAD = 1000
+HTTP_PROXY.PORT = proxy_port
+HTTP_PROXY.ADMIN_PORT = proxy_admin_port
+HTTP_PROXY.CONFIG_NAME = configuration.yaml
+```
 - Proxy config :/src/main/resource/configuration.yaml  
   Should have admin config :  
 ```   
