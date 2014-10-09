@@ -139,17 +139,17 @@ servers:
 
    routes: 
     - name: dummy_checkhealth  
-      url: "GET /http_proxy/checkhealth"  
+      url: "GET /http_proxy/.*"  
       server: dummy_server  
       logging: 'off'  
       metric: 'off'  
 ```
 - Reload config  
-  http://localhost:admin_port/http_proxy/reloadconfig 
-  http://proxyhost:proxy_port/http_proxy/reloadconfig 
+  http://localhost:admin_port/http_proxy/reloadconfig   
+  http://proxyhost:proxy_port/http_proxy/reloadconfig  
   (header must have Username:admin, Password:admin properties)
 - Url to see the health of endpoint  
-  http://localhost:admin_port/http_proxy/monitor 
+  http://localhost:admin_port/http_proxy/monitor  
   http://proxyhost:proxy_port/http_proxy/monitor 
 - Get source  
   $ git clone https://github.com/lunextelecom/http-proxy.git
