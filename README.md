@@ -109,12 +109,12 @@ routes:
 
 ## How to use
 - Prerequisite
-  - Install rabitmq on running machine http://www.rabbitmq.com/install-debian.html  	
+  - Install rabitmq(3.3.5) on running machine (http://www.rabbitmq.com/install-debian.html)  	
   - Should increase maximum file open limit (ulimit) 
     Open /etc/security/limits.conf, add following lines:  
       username     soft    nofile          65535  
       username     hard    nofile          65535  
-- App config  
+- App config  (/src/main/resource/app.properties)  
   DB.HOST = cassandra host  
   DB.USERNAME =   
   DB.PASS =   
@@ -125,6 +125,22 @@ routes:
   HTTP_PROXY.PORT = proxy port  
   HTTP_PROXY.ADMIN_PORT = admin port  
   HTTP_PROXY.CONFIG_NAME = configuration.yaml  
+- Proxy config :/src/main/resource/configuration.yaml  
+  Should have admin config :  
+```   
+servers:  
+    - name: dummy_server  
+      target: 127.0.0.1:9999 #9999: admin port  
+      health : /http_proxy/checkhealth  
+
+   routes: 
+    - name: dummy_checkhealth  
+      url: "GET /http_proxy/checkhealth"  
+      server: dummy_server  
+      logging: 'off'  
+      health : 'off'  
+      metric: 'off'  
+```
 - Reload config  
   http://localhost:admin_port/http_proxy/reloadconfig 
   (header must have Username:admin, Password:admin properties)
@@ -132,5 +148,19 @@ routes:
   $ git clone https://github.com/lunextelecom/http-proxy.git
 - Install  
    mvn clean install -DskipTests=true
-- Run: java -jar target/http-proxy-1.0-SNAPSHOT.jar
+- Run: java -jar -Xms2500m -Xmx2500m target/http-proxy-1.0-SNAPSHOT.jar 
+- (optional)Config haproxy(1.4.24)  
+  Health check for http_proxy: option httpchk HEAD /http_proxy/checkhealth HTTP/1.0  
+  Exam: 
+```
+  listen webcluster *:9000  
+       mode    http  
+       balance roundrobin  
+       option httpchk HEAD /http_proxy/checkhealth HTTP/1.0  
+       option forwardfor  
+       option httpclose
+       server web01 10.9.9.111:8080 check 
+       server web02 10.9.9.112:8080 check 
+```
+  
   
