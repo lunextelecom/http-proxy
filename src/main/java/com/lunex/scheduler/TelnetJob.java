@@ -43,70 +43,22 @@ public class TelnetJob implements Job {
           }
           if(!health.equalsIgnoreCase("off")){
             List<HostAndPort> targets = serverInfo.getTargets();
-            if(targets != null && targets.size()>0){
-              if(health.equalsIgnoreCase("ping")){
-                for (HostAndPort item : targets) {
-                  boolean oldStatus = item.isAlive();
-                  boolean status = Utils.checkServerAlive(item.getHost(), item.getPort());
-                  if(!status){
-                    if(oldStatus){
-                      try {
-                        Thread.sleep(100);
-                        status =  Utils.checkServerAlive(item.getHost(), item.getPort());
-                        if(!status){
-                          item.setAlive(false);
-                          log.info("Can not connected with ip " + item.getHost() + " and port " + item.getPort());
-                          EndpointObject endpointObject = new EndpointObject(item.toString(), EEndpointStatus.DOWN);
-                          CassandraRepository.getInstance().updateEndpoint(endpointObject);
-                        }
-                      } catch (Exception e) {
-                        log.error(e.getMessage());
-                      }
-                    }
-                  }else{
-                    if(!oldStatus){
-                      log.info("Connected with ip " + item.getHost() + " and port " + item.getPort());
-                      item.setAlive(true);
-                      try {
-                        EndpointObject endpointObject = new EndpointObject(item.toString(), EEndpointStatus.ALIVE);
-                        CassandraRepository.getInstance().updateEndpoint(endpointObject);
-                      } catch (Exception e) {
-                        log.error(e.getMessage());
-                      }
-                    }
-                  }
-                }
-              }else{
-                for (HostAndPort item : targets) {
-                  boolean oldStatus = item.isAlive();
-                  String url = String.format("http://%s:%d%s%s", item.getHost(), item.getPort(), item.getUrl(), health);       
-                  boolean status = Utils.checkServerAlive(url);
-                  if(!status){
-                    if(oldStatus){
-                      try {
-                        Thread.sleep(100);
-                        status =  Utils.checkServerAlive(url);
-                        if(!status){
-                          item.setAlive(false);
-                          log.info("Check health FAILED with :" + url);
-                          EndpointObject endpointObject = new EndpointObject(item.toString(), EEndpointStatus.DOWN);
-                          CassandraRepository.getInstance().updateEndpoint(endpointObject);
-                        }
-                      } catch (Exception e) {
-                        log.error(e.getMessage());
-                      }
-                    }
-                  }else{
-                    if(!oldStatus){
-                      log.info("Check health OK with :" + url);
-                      item.setAlive(true);
-                      try {
-                        EndpointObject endpointObject = new EndpointObject(item.toString(), EEndpointStatus.ALIVE);
-                        CassandraRepository.getInstance().updateEndpoint(endpointObject);
-                      } catch (Exception e) {
-                        log.error(e.getMessage());
-                      }
-                    }
+            if (targets != null && targets.size() > 0) {
+              for (HostAndPort item : targets) {
+                boolean oldStatus = item.isAlive();
+                boolean status = checkStatus(item, health, oldStatus);
+                if (!status & oldStatus) {
+                  item.setAlive(false);
+                  log.info("Can not connected with ip " + item.getHost() + " and port " + item.getPort());
+                  updateEndpoint(item, EEndpointStatus.DOWN);
+                } else if (status & !oldStatus) {
+                  log.info("Connected with ip " + item.getHost() + " and port " + item.getPort());
+                  item.setAlive(true);
+                  updateEndpoint(item, EEndpointStatus.ALIVE);
+                }else{
+                  if(!Configuration.getLstTargets().contains(item.toString())){
+                    Configuration.getLstTargets().add(item.toString());
+                    updateEndpoint(item, status?EEndpointStatus.ALIVE:EEndpointStatus.DOWN);
                   }
                 }
               }
@@ -117,4 +69,38 @@ public class TelnetJob implements Job {
     }
     log.info("end telnet job");
   }
+  private boolean checkStatus(HostAndPort item, String health, boolean oldStatus){
+    boolean status = false;
+    String url = String.format("http://%s:%d%s%s", item.getHost(), item.getPort(),item.getUrl(), health);
+    if (health.equalsIgnoreCase("ping")) {
+      status = Utils.checkServerAlive(item.getHost(), item.getPort());
+    } else {
+      status = Utils.checkServerAlive(url);
+    }
+    if (!status) {
+      if (oldStatus) {
+        try {
+          Thread.sleep(100);
+          if (health.equalsIgnoreCase("ping")) {
+            status = Utils.checkServerAlive(item.getHost(), item.getPort());
+          } else {
+            status = Utils.checkServerAlive(url);
+          }
+        }catch (Exception e) {
+          log.error(e.getMessage());
+        }
+      }
+    }
+    return status;
+  }
+  
+  private void updateEndpoint(HostAndPort item, EEndpointStatus status){
+    try {
+      EndpointObject endpointObject =new EndpointObject(item.toString(), status);
+      CassandraRepository.getInstance().updateEndpoint(endpointObject);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+    }
+  }
+  
 }

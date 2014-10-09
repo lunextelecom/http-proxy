@@ -9,22 +9,20 @@ server_default:
 servers:
     - name: dummy_server
       target: 127.0.0.1:9999
-      health : /http_proxy/checkhealth
+      health : 'off'
 
     - name: AtsService_server
       target: test-sysapi.lunextelecom.com
-      health : 'off'
+      health : 'ping'
       
 routes: 
     - name: dummy_checkhealth
-      url: "GET /http_proxy/checkhealth"
+      url: "GET /http_proxy/.*"
       server: dummy_server
       logging: 'off'
-      health : 'off' 
       metric: 'off'
       
     - name: AtsService
       url: "GET /AtsService.*"
       server: AtsService_server
       logging: req(*)  
-      health : 'off' 

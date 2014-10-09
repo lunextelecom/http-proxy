@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,6 +82,8 @@ public class Configuration {
   private static Pattern checkHealthPattern = Pattern.compile("/http_proxy/checkhealth$");
   
   private static Pattern monitorPattern = Pattern.compile("/http_proxy/monitor$");
+  
+  private static Set<String> lstTargets = new HashSet<>();
 
   /** The consumer. */
   private static QueueConsumer consumer;
@@ -284,4 +288,7 @@ public class Configuration {
     return monitorPattern;
   }
 
+  public static Set<String> getLstTargets() {
+    return lstTargets;
+  }
 }

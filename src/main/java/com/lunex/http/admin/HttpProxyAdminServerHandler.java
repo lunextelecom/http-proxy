@@ -43,14 +43,14 @@ public class HttpProxyAdminServerHandler extends SimpleChannelInboundHandler<Htt
   
   private Exception exception;
   
-  private EAdminFunction function;
+  private EAdminFunction function = null;
 
   public HttpProxyAdminServerHandler() {}
 
   @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
     // write response
-    if (function == EAdminFunction.CHECKHEALTH) {
+    if (function == EAdminFunction.EXCEPTION) {
       exceptionCaught(ctx, exception);
       return;
     }
@@ -92,10 +92,10 @@ public class HttpProxyAdminServerHandler extends SimpleChannelInboundHandler<Htt
       String tmp = "<tr><td>%s</td><td style='text-align:center'><span style='background-color:%s'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td style='text-align:center'>%s</td></tr>";
       while (!lstEndpoint.isExhausted()) {
         final Row row = lstEndpoint.one();
-        body.append(String.format(tmp, row.getString("target"), row.getInt("status")==1?"green":"red", new SimpleDateFormat("dd/MM/yyyy").format(new Date(UUIDs.unixTimestamp(row.getUUID("updateid"))))));
+        body.append(String.format(tmp, row.getString("target").endsWith(":80")?row.getString("target").replace(":80", ""):row.getString("target"), row.getInt("status")==1?"green":"red", new SimpleDateFormat("HH:mm dd/MM/yyyy").format(new Date(UUIDs.unixTimestamp(row.getUUID("updateid"))))));
       }
     }
-    StringBuilder res = new StringBuilder("<html><head><title>jQuery Hello World</title><link rel=stylesheet type=text/css href=http://cdn.datatables.net/1.10.2/css/jquery.dataTables.css><script type=text/javascript charset=utf8 src=http://code.jquery.com/jquery-1.10.2.min.js></script><script type=text/javascript charset=utf8 src=http://cdn.datatables.net/1.10.2/js/jquery.dataTables.js></script><body><div style=width:500px><table id=table_id class=display><thead><tr><th>Target<th>Status<th>Update time<tbody>%s</table></div><script>$(document).ready(function(){$('#table_id').DataTable({autoWidth:!1,paging:!1,columns:[{orderable:!0},{orderable:!1},{orderable:!1}]})});</script>");
+    StringBuilder res = new StringBuilder("<html><head><title>Http_proxy monitor</title><link rel=stylesheet type=text/css href=http://cdn.datatables.net/1.10.2/css/jquery.dataTables.css><script type=text/javascript charset=utf8 src=http://code.jquery.com/jquery-1.10.2.min.js></script><script type=text/javascript charset=utf8 src=http://cdn.datatables.net/1.10.2/js/jquery.dataTables.js></script><body><div style=width:500px><table id=table_id class=display><thead><tr><th>Target<th>Status<th>Update time<tbody>%s</table></div><script>$(document).ready(function(){$('#table_id').DataTable({autoWidth:!1,paging:!1,columns:[{orderable:!0},{orderable:!1},{orderable:!1}]})});</script>");
     
     return String.format(res.toString(), body.toString());
   }
