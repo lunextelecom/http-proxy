@@ -135,19 +135,22 @@ HTTP_PROXY.CONFIG_NAME = configuration.yaml
 servers:  
     - name: dummy_server  
       target: 127.0.0.1:9999 #9999: admin port  
-      health : /http_proxy/checkhealth  
+      health : 'off'  
 
    routes: 
     - name: dummy_checkhealth  
       url: "GET /http_proxy/checkhealth"  
       server: dummy_server  
       logging: 'off'  
-      health : 'off'  
       metric: 'off'  
 ```
 - Reload config  
   http://localhost:admin_port/http_proxy/reloadconfig 
+  http://proxyhost:proxy_port/http_proxy/reloadconfig 
   (header must have Username:admin, Password:admin properties)
+- Url to see the health of endpoint  
+  http://localhost:admin_port/http_proxy/monitor 
+  http://proxyhost:proxy_port/http_proxy/monitor 
 - Get source  
   $ git clone https://github.com/lunextelecom/http-proxy.git
 - Install  
