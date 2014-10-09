@@ -47,7 +47,7 @@ public class App {
       Configuration.loadConfig("src/main/resource/app.properties");
       startHttpProxy();
       startAdmin();
-//      JobScheduler.run();
+      JobScheduler.run();
       logger.info("startup done, listening....");
     } catch (Exception e) {
       logger.error(e.getMessage());

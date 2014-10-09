@@ -124,6 +124,23 @@ public class CassandraRepository {
   }
 
   /**
+   * select endpoint.
+   * 
+   */
+  public ResultSet getLstEndpointInfo(){
+    String sql = "select * from " + instance.keyspace + ".endpoint";
+    List<Object> listParams = new ArrayList<Object>();
+    ResultSet res = null;
+    try {
+      res = execute(sql, listParams);
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    return res;
+  }
+  
+  
+  /**
    * Insert logging.
    * @param logObject the log object
    */

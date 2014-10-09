@@ -78,6 +78,8 @@ public class Configuration {
   private static Pattern reloadPattern = Pattern.compile("/http_proxy/reloadconfig$");
   
   private static Pattern checkHealthPattern = Pattern.compile("/http_proxy/checkhealth$");
+  
+  private static Pattern monitorPattern = Pattern.compile("/http_proxy/monitor$");
 
   /** The consumer. */
   private static QueueConsumer consumer;
@@ -278,4 +280,8 @@ public class Configuration {
   public static Pattern getCheckHealthPattern() {
     return checkHealthPattern;
   }
+  public static Pattern getMonitorPattern() {
+    return monitorPattern;
+  }
+
 }
