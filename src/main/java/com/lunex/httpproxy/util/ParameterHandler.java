@@ -37,8 +37,7 @@ public class ParameterHandler {
   /** The http proxy num thread. */
   public static int HTTP_PROXY_NUM_THREAD;
   
-  /** The http proxy config name. */
-  public static String HTTP_PROXY_CONFIG_NAME;
+  public static int HTTP_PROXY_SCHEDULE_TIME;
 
   /**
    * Gets the properties values.
@@ -64,7 +63,7 @@ public class ParameterHandler {
       HTTP_PROXY_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.PORT"));
       HTTP_PROXY_ADMIN_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.ADMIN_PORT"));
       HTTP_PROXY_NUM_THREAD = Integer.valueOf(prop.getProperty("HTTP_PROXY.NUM_THREAD"));
-      HTTP_PROXY_CONFIG_NAME = prop.getProperty("HTTP_PROXY.CONFIG_NAME");
+      HTTP_PROXY_SCHEDULE_TIME = Integer.valueOf(prop.getProperty("HTTP_PROXY.SCHEDULE_TIME"));
     } catch (Exception e) {
       e.printStackTrace();
     }

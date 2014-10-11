@@ -27,7 +27,7 @@ public class BaseTest {
     // one-time initialization code
     System.out.println("@BeforeClass - oneTimeSetUp");
     initEnviroment();
-    Configuration.loadConfig("src/main/resource/app_test.properties");
+    Configuration.loadConfig("conf/app.properties", "conf/configuration.properties");
   }
 
   @AfterClass

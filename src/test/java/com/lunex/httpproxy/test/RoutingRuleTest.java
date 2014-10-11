@@ -17,7 +17,7 @@ public class RoutingRuleTest {
   public static void oneTimeSetUp() throws Exception {
     // one-time initialization code
     System.out.println("@BeforeClass - oneTimeSetUp");
-    Configuration.loadConfig("src/main/resource/app_test.properties");
+    Configuration.loadConfig("conf/app.properties", "conf/configuration.properties");
   }
   
   @Test

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.base.Strings;
+import com.lunex.httpproxy.App;
 import com.lunex.httpproxy.cassandra.CassandraRepository;
 import com.lunex.httpproxy.queue.Producer;
 import com.lunex.httpproxy.queue.QueueConsumer;
@@ -60,6 +61,8 @@ public class Configuration {
   
   /** The proxy num thread. */
   public static int proxyNumThread;
+  
+  public static int scheduleTime;
   
   /** The proxy config name. */
   public static String proxyConfigName;
@@ -123,17 +126,18 @@ public class Configuration {
    *
    * @param appFileName the app file name
    */
-  public static void loadConfig(String appFileName) throws Exception{
+  public static void loadConfig(String appFileName, String configFilename) throws Exception{
     //init queue
     initQueue();
     //load parameter
     ParameterHandler.getPropertiesValues(appFileName);
-    Configuration.proxyPort = ParameterHandler.HTTP_PROXY_PORT;
-    Configuration.proxyAdminPort = ParameterHandler.HTTP_PROXY_ADMIN_PORT;
-    Configuration.host = ParameterHandler.DB_HOST;
-    Configuration.keyspace = ParameterHandler.DB_DBNAME;
-    Configuration.proxyNumThread = ParameterHandler.HTTP_PROXY_NUM_THREAD;
-    Configuration.proxyConfigName = ParameterHandler.HTTP_PROXY_CONFIG_NAME;
+    proxyPort = ParameterHandler.HTTP_PROXY_PORT;
+    proxyAdminPort = ParameterHandler.HTTP_PROXY_ADMIN_PORT;
+    host = ParameterHandler.DB_HOST;
+    keyspace = ParameterHandler.DB_DBNAME;
+    proxyNumThread = ParameterHandler.HTTP_PROXY_NUM_THREAD;
+    proxyConfigName = configFilename;
+    scheduleTime = ParameterHandler.HTTP_PROXY_SCHEDULE_TIME;
     //load cassandra
     CassandraRepository.getInstance();
     //load config
@@ -150,7 +154,7 @@ public class Configuration {
     }
     // read config
     Map<String, Object> config = null;
-    config = Configuration.loadYamlFile("src/main/resource/" + configFilename);
+    config = Configuration.loadYamlFile(configFilename);
     if (config == null) {
       throw new Exception("config invalid");
     }
@@ -275,6 +279,10 @@ public class Configuration {
 
   public static int getProxyAdminPort() {
     return proxyAdminPort;
+  }
+
+  public static int getScheduleTime() {
+    return scheduleTime;
   }
 
   public static Pattern getCheckHealthPattern() {

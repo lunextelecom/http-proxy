@@ -10,6 +10,8 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
+import com.lunex.httpproxy.util.Configuration;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class JobScheduler.
@@ -29,7 +31,7 @@ public class JobScheduler {
           TriggerBuilder
               .newTrigger()
               .withSchedule(
-                  SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(10).repeatForever())
+                  SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(Configuration.getScheduleTime()).repeatForever())
               .build();
 
       // schedule the job
