@@ -81,7 +81,7 @@ public class CassandraRepository {
       KeyspaceMetadata keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
       if (keyspaceMetadata == null) {
         String sql =
-            "CREATE KEYSPACE " + instance.keyspace + " WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 };";
+            "CREATE KEYSPACE " + instance.keyspace + " WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 }";
         instance.session.execute(sql);
         metadata = instance.cluster.getMetadata();
         keyspaceMetadata = metadata.getKeyspace(instance.keyspace);

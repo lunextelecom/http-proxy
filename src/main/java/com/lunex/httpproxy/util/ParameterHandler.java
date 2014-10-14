@@ -52,18 +52,18 @@ public class ParameterHandler {
 
       InputStream inputStream = new FileInputStream(propFileName);
       prop.load(inputStream);
-      DB_HOST = prop.getProperty("DB.HOST");
-      DB_USERNAME = prop.getProperty("DB.USERNAME");
-      DB_PASS = prop.getProperty("DB.PASS");
-      DB_DBNAME = prop.getProperty("DB.DBNAME");
+      DB_HOST = prop.getProperty("DB.HOST").trim();
+      DB_USERNAME = prop.getProperty("DB.USERNAME").trim();
+      DB_PASS = prop.getProperty("DB.PASS").trim();
+      DB_DBNAME = prop.getProperty("DB.DBNAME").trim();
       
-      METRIC_HOST = prop.getProperty("METRIC.HOST");
-      METRIC_PORT = Integer.valueOf(prop.getProperty("METRIC.PORT"));
+      METRIC_HOST = prop.getProperty("METRIC.HOST").trim();
+      METRIC_PORT = Integer.valueOf(prop.getProperty("METRIC.PORT").trim());
       
-      HTTP_PROXY_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.PORT"));
-      HTTP_PROXY_ADMIN_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.ADMIN_PORT"));
-      HTTP_PROXY_NUM_THREAD = Integer.valueOf(prop.getProperty("HTTP_PROXY.NUM_THREAD"));
-      HTTP_PROXY_SCHEDULE_TIME = Integer.valueOf(prop.getProperty("HTTP_PROXY.SCHEDULE_TIME"));
+      HTTP_PROXY_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.PORT").trim());
+      HTTP_PROXY_ADMIN_PORT = Integer.valueOf(prop.getProperty("HTTP_PROXY.ADMIN_PORT").trim());
+      HTTP_PROXY_NUM_THREAD = Integer.valueOf(prop.getProperty("HTTP_PROXY.NUM_THREAD").trim());
+      HTTP_PROXY_SCHEDULE_TIME = Integer.valueOf(prop.getProperty("HTTP_PROXY.SCHEDULE_TIME").trim());
     } catch (Exception e) {
       e.printStackTrace();
     }

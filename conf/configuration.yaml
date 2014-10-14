@@ -11,10 +11,13 @@ servers:
       target: 127.0.0.1:9999
       health : 'off'
 
-    - name: AtsService_server
+    - name: APIService_server
       target: test-sysapi.lunextelecom.com
       health : 'ping'
-      
+
+    - name: nginx_server
+      target: 10.9.9.111
+      health : 'off'
 routes: 
     - name: dummy_checkhealth
       url: "GET /http_proxy/.*"
@@ -23,6 +26,17 @@ routes:
       metric: 'off'
       
     - name: AtsService
-      url: "GET /AtsService.*"
-      server: AtsService_server
+      url: "GET /AtsService.svc/.*"
+      server: APIService_server
       logging: req(*)  
+
+    - name: PosService
+      url: "GET /PosService.svc/.*"
+      server: APIService_server
+      logging: req(*)
+  
+    - name: nginx_home
+      url: "GET /"
+      server: nginx_server
+      logging: 'off'
+      metric: 'off' 
