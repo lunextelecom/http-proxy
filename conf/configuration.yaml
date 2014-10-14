@@ -11,8 +11,12 @@ servers:
       target: 127.0.0.1:9999
       health : 'off'
 
-    - name: APIService_server
+    - name: ATSService_server
       target: test-sysapi.lunextelecom.com
+      health : 'ping'
+      
+    - name: POSService_server
+      target: test-api.lunextelecom.com
       health : 'ping'
 
     - name: nginx_server
@@ -32,7 +36,7 @@ routes:
 
     - name: PosService
       url: "GET /PosService.svc/.*"
-      server: APIService_server
+      server: POSService_server
       logging: req(*)
   
     - name: nginx_home
