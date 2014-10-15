@@ -1,9 +1,6 @@
 package com.lunex.httpproxy;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -12,7 +9,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +39,6 @@ public class App {
 
   private static final String OPTION_HELP = "h";
   
-  private static final String OPTION_LOG4J = "l";
-  
   /**
    * The main method.
    *
@@ -54,7 +48,6 @@ public class App {
     final Options options = new Options();
     options.addOption(null, OPTION_APP, true, "app.properties: cassandra, metric, port, admin port....");
     options.addOption(null, OPTION_CONFIG, true, "configuration.yaml: servers, routes info");
-    options.addOption(null, OPTION_LOG4J, true, "log4j configuration");
     options.addOption(null, OPTION_HELP, false, "Display command line help.");
     final CommandLineParser parser = new PosixParser();
     final CommandLine cmd;
@@ -72,8 +65,6 @@ public class App {
       printHelp(options, null);
       return;
     }
-    // load log4j properties
-    loadLog4j(cmd);
     
     String appConfig = cmd.getOptionValue(OPTION_APP);
     String proxyConfig = cmd.getOptionValue(OPTION_CONFIG);
@@ -87,24 +78,6 @@ public class App {
       logger.error(e.getMessage());
     }
     
-  }
-
-  private static void loadLog4j(CommandLine cmd) {
-    Properties props = new Properties();
-    try {
-      if(cmd.hasOption(OPTION_LOG4J)){
-        try {
-          props.load(new FileInputStream(cmd.getOptionValue(OPTION_LOG4J)));
-        } catch (Exception e) {
-          props.load(new FileInputStream("conf/log4j.properties"));
-        }
-      }else{
-        props.load(new FileInputStream("conf/log4j.properties"));
-      }
-      PropertyConfigurator.configure(props);
-    } catch (IOException ex) {
-      logger.error(ex.getMessage());
-    }
   }
 
   /**
