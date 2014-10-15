@@ -155,7 +155,7 @@ servers:
   $ git clone https://github.com/lunextelecom/http-proxy.git
 - Install  
    mvn clean install -DskipTests=true
-- Run: java -jar -Xms2500m -Xmx2500m target/http-proxy-1.0-SNAPSHOT.jar 
+- Run: java -jar -Xms2500m -Xmx2500m -Dlog4j.configuration=file:/xxx/log4j.properties target/http-proxy-1.0-SNAPSHOT.jar -a conf/app.properties -c conf/configuration.yaml
 - (optional)Config haproxy(1.4.24)  
   Health check for http_proxy: option httpchk HEAD /http_proxy/checkhealth HTTP/1.0  
   Exam: 
