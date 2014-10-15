@@ -1,0 +1,46 @@
+route_default:  
+    logging: req, req_body(POST,PUT), resp_body(POST)
+    metric: "test.http_proxy.{server_name}.{verb}_{route_name}_{response_code}"
+
+server_default:
+    balancer: rr
+    health: 'off'
+
+servers:
+    - name: dummy_server
+      target: 127.0.0.1:9999
+      health : 'off'
+
+    - name: ATSService_server
+      target: test-sysapi.lunextelecom.com
+      health : 'ping'
+      
+    - name: POSService_server
+      target: test-api.lunextelecom.com
+      health : 'ping'
+
+    - name: nginx_server
+      target: 10.9.9.111
+      health : 'off'
+routes: 
+    - name: dummy_checkhealth
+      url: "GET /http_proxy/.*"
+      server: dummy_server
+      logging: 'off'
+      metric: 'off'
+      
+    - name: AtsService
+      url: "GET /AtsService.svc/.*"
+      server: APIService_server
+      logging: req(*)  
+
+    - name: PosService
+      url: "GET /PosService.svc/.*"
+      server: POSService_server
+      logging: req(*)
+  
+    - name: nginx_home
+      url: "GET /"
+      server: nginx_server
+      logging: 'off'
+      metric: 'off' 
