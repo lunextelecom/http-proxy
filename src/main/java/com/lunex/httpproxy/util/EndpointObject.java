@@ -1,9 +1,16 @@
 package com.lunex.httpproxy.util;
 
+import java.io.Serializable;
+
 /**
  * The Class EndpointObject.
  */
-public class EndpointObject {
+public class EndpointObject  implements Serializable{
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -5958217917242551920L;
 
   /** The target. */
   private String target;

@@ -19,9 +19,9 @@ import com.lunex.httpproxy.util.Configuration;
  * Netty server for http protocol
  *
  */
-public class HttpProxySnoopServer {
+public class HttpProxyServer {
 
-  static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServer.class);
+  static final Logger logger = LoggerFactory.getLogger(HttpProxyServer.class);
 
   private int port;
   private ServerBootstrap bootStrap;
@@ -29,7 +29,7 @@ public class HttpProxySnoopServer {
   private EventLoopGroup bossGroup;
   private EventLoopGroup workerGroup;
 
-  public HttpProxySnoopServer(int port) {
+  public HttpProxyServer(int port) {
     this.port = port;
   }
 
@@ -50,7 +50,7 @@ public class HttpProxySnoopServer {
           .handler(new LoggingHandler(LogLevel.INFO))
           .childOption(ChannelOption.TCP_NODELAY, true)
           .childOption(ChannelOption.SO_KEEPALIVE, true)
-          .childHandler(new HttpProxySnoopServerInitializer());
+          .childHandler(new HttpProxyServerInitializer());
       channel = bootStrap.bind(port).sync().channel();
 
       ChannelFuture channelFuture = channel.closeFuture();

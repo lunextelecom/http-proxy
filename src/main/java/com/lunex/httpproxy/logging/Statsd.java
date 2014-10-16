@@ -3,8 +3,8 @@ package com.lunex.httpproxy.logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lunex.httpproxy.util.Configuration;
 import com.lunex.httpproxy.util.Constants;
-import com.lunex.httpproxy.util.ParameterHandler;
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
 
@@ -33,11 +33,11 @@ public class Statsd {
     } else {
       return null;
     }
-    String selectedHost = ParameterHandler.METRIC_HOST;
+    String selectedHost = Configuration.getMetricHost();
     if (!Constants.EMPTY_STRING.equals(host)) {
       selectedHost = host;
     }
-    int selectedPort = ParameterHandler.METRIC_PORT;
+    int selectedPort = Configuration.getMetricPort();
     if (port != 0) {
       selectedPort = port;
     }

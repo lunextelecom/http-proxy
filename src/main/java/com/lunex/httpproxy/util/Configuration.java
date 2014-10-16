@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.base.Strings;
-import com.lunex.httpproxy.App;
+import com.lunex.httpproxy.HttpProxyLauncher;
 import com.lunex.httpproxy.cassandra.CassandraRepository;
 import com.lunex.httpproxy.queue.Producer;
 import com.lunex.httpproxy.queue.QueueConsumer;
@@ -67,6 +67,12 @@ public class Configuration {
   /** The proxy config name. */
   public static String proxyConfigName;
   
+  /** The metric host. */
+  public static String metricHost;
+  
+  /** The metric port. */
+  public static int metricPort;
+  
   /** The target pattern. */
   private static Pattern targetPattern = Pattern.compile("([^:|\\/^]*)(:)?(\\d*)?(.*)?");
   
@@ -84,28 +90,14 @@ public class Configuration {
   
   private static Set<String> lstTargets = new HashSet<>();
 
+  private static String queueName = "loggingQueue";
+  
   /** The consumer. */
   private static QueueConsumer consumer;
   
   /** The producer. */
   private static Producer producer;
 
-  /**
-   * Inits the queue.
-   */
-  public static void initQueue() {
-    try {
-      logger.info("init queue");
-      consumer = new QueueConsumer("loggingQueue");
-      Thread consumerThread = new Thread(consumer);
-      consumerThread.start();
-      
-      producer = new Producer("loggingQueue");
-    } catch (Exception e) {
-      logger.error("loggingQueue error", e);
-    }
-  }
-  
   /**
    * Load config from yaml file.
    *
@@ -121,25 +113,47 @@ public class Configuration {
     return data;
   }
 
+
+  public static void loadQueueConf(String appConf) throws Exception{
+    //load parameter
+    ParameterHandler.getAppProps(appConf);
+    host = ParameterHandler.DB_HOST;
+    keyspace = ParameterHandler.DB_DBNAME;
+    metricHost = ParameterHandler.METRIC_HOST;
+    metricPort = ParameterHandler.METRIC_PORT;
+    //load cassandra
+    CassandraRepository.getInstance();
+    //init consumer
+    try {
+      logger.info("init queue");
+      consumer = new QueueConsumer(queueName);
+      Thread consumerThread = new Thread(consumer);
+      consumerThread.start();
+    } catch (Exception e) {
+      logger.error("loggingQueue error", e);
+    }
+  }
+
+  
   /**
    * Load config.
    *
-   * @param appFileName the app file name
+   * @param proxyConf the app file name
    */
-  public static void loadConfig(String appFileName, String configFilename) throws Exception{
-    //init queue
-    initQueue();
+  public static void loadConfig(String proxyConf, String configFilename) throws Exception{
+    //init producer
+    try {
+      producer = new Producer(queueName);
+    } catch (Exception e) {
+      logger.error("loggingQueue error", e);
+    }
     //load parameter
-    ParameterHandler.getPropertiesValues(appFileName);
+    ParameterHandler.getProxyProps(proxyConf);
     proxyPort = ParameterHandler.HTTP_PROXY_PORT;
     proxyAdminPort = ParameterHandler.HTTP_PROXY_ADMIN_PORT;
-    host = ParameterHandler.DB_HOST;
-    keyspace = ParameterHandler.DB_DBNAME;
     proxyNumThread = ParameterHandler.HTTP_PROXY_NUM_THREAD;
-    proxyConfigName = configFilename;
     scheduleTime = ParameterHandler.HTTP_PROXY_SCHEDULE_TIME;
-    //load cassandra
-    CassandraRepository.getInstance();
+    proxyConfigName = configFilename;
     //load config
     reloadConfig();
   }
@@ -290,6 +304,14 @@ public class Configuration {
   }
   public static Pattern getMonitorPattern() {
     return monitorPattern;
+  }
+
+  public static String getMetricHost() {
+    return metricHost;
+  }
+
+  public static int getMetricPort() {
+    return metricPort;
   }
 
   public static Set<String> getLstTargets() {

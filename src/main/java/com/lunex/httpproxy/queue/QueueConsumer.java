@@ -6,11 +6,16 @@ import org.apache.commons.lang.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lunex.httpproxy.cassandra.CassandraRepository;
 import com.lunex.httpproxy.logging.LoggingProcessor;
 import com.lunex.httpproxy.logging.Statsd;
+import com.lunex.httpproxy.util.Configuration;
+import com.lunex.httpproxy.util.EndpointObject;
+import com.lunex.httpproxy.util.HostAndPort;
 import com.lunex.httpproxy.util.LogObjectQueue;
 import com.lunex.httpproxy.util.MetricObjectQueue;
 import com.lunex.httpproxy.util.ParameterHandler;
+import com.lunex.httpproxy.util.EndpointObject.EndpointStatus;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.Envelope;
@@ -54,8 +59,12 @@ public class QueueConsumer extends EndPoint implements Runnable, Consumer {
     if (obj instanceof MetricObjectQueue) {
       logger.info("received MetricObjectQueue");
       MetricObjectQueue objInfo = (MetricObjectQueue) obj;
-      Statsd statsd = Statsd.start(objInfo.getMetric(), objInfo.getMetricStartTime(), ParameterHandler.METRIC_HOST, ParameterHandler.METRIC_PORT);
+      Statsd statsd = Statsd.start(objInfo.getMetric(), objInfo.getMetricStartTime(), Configuration.getMetricHost(), Configuration.getMetricPort());
       statsd.stop(objInfo.getStatusResponse(), objInfo.getMetricStopTime());
+    }else if (obj instanceof EndpointObject) {
+      logger.info("received EndpointObject");
+      EndpointObject objInfo = (EndpointObject) obj;
+      updateEndpoint(objInfo);
     } else {
       logger.info("received LogObjectQueue");
       LogObjectQueue objInfo = (LogObjectQueue) obj;
@@ -63,7 +72,13 @@ public class QueueConsumer extends EndPoint implements Runnable, Consumer {
     }
 
   }
-
+  private void updateEndpoint(EndpointObject endpointObject){
+    try {
+      CassandraRepository.getInstance().updateEndpoint(endpointObject);
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+  }
   public void handleCancel(String consumerTag) {}
 
   public void handleCancelOk(String consumerTag) {}

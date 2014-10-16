@@ -10,7 +10,7 @@ import io.netty.handler.codec.http.HttpContentDecompressor;
 /**
  * Channel initualizer for netty client.
  */
-public class HttpProxySnoopClientInitializer extends ChannelInitializer<SocketChannel> {
+public class HttpProxyClientInitializer extends ChannelInitializer<SocketChannel> {
 
   /** The callback. */
   private CallbackHTTPVisitor callback;
@@ -20,7 +20,7 @@ public class HttpProxySnoopClientInitializer extends ChannelInitializer<SocketCh
    *
    * @param callback the callback
    */
-  public HttpProxySnoopClientInitializer(CallbackHTTPVisitor callback) {
+  public HttpProxyClientInitializer(CallbackHTTPVisitor callback) {
     this.callback = callback;
   }
 
@@ -32,6 +32,6 @@ public class HttpProxySnoopClientInitializer extends ChannelInitializer<SocketCh
     ChannelPipeline p = ch.pipeline();
     p.addLast(new HttpClientCodec());
     p.addLast(new HttpContentDecompressor());
-    p.addLast(new HttpProxySnoopClientHandler(callback));
+    p.addLast(new HttpProxyClientHandler(callback));
   }
 }

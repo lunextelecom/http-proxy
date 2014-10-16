@@ -10,12 +10,12 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 /**
  * Channel Initializer for netty server.
  */
-public class HttpProxySnoopServerInitializer extends ChannelInitializer<SocketChannel> {
+public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel> {
 
   /**
    * The Constructor.
    */
-  public HttpProxySnoopServerInitializer() {}
+  public HttpProxyServerInitializer() {}
 
   /* (non-Javadoc)
    * @see io.netty.channel.ChannelInitializer#initChannel(io.netty.channel.Channel)
@@ -25,6 +25,6 @@ public class HttpProxySnoopServerInitializer extends ChannelInitializer<SocketCh
     ChannelPipeline p = ch.pipeline();
     p.addLast(new HttpRequestDecoder());
     p.addLast(new HttpResponseEncoder());
-    p.addLast(new HttpProxySnoopServerHandler());
+    p.addLast(new HttpProxyServerHandler());
   }
 }

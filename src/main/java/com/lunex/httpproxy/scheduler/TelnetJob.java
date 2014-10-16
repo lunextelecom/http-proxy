@@ -1,5 +1,6 @@
 package com.lunex.httpproxy.scheduler;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -8,7 +9,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.google.common.base.Strings;
-import com.lunex.httpproxy.cassandra.CassandraRepository;
 import com.lunex.httpproxy.rule.ProxyRule;
 import com.lunex.httpproxy.rule.RouteInfo;
 import com.lunex.httpproxy.rule.ServerInfo;
@@ -97,7 +97,12 @@ public class TelnetJob implements Job {
   private void updateEndpoint(HostAndPort item, EndpointStatus status){
     try {
       EndpointObject endpointObject =new EndpointObject(item.toString(), status);
-      CassandraRepository.getInstance().updateEndpoint(endpointObject);
+      try {
+        log.info("send EndpointObject message");
+        Configuration.getProducer().sendMessage(endpointObject);
+      } catch (IOException e) {
+        log.error("sendMessage error ", e);
+      }
     } catch (Exception e) {
       log.error(e.getMessage());
     }

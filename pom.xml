@@ -104,7 +104,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>com.lunex.httpproxy.App</mainClass>
+					<mainClass>com.lunex.httpproxy.HttpProxyLauncher</mainClass>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -140,7 +140,7 @@
 									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>com.lunex.httpproxy.App</mainClass>
+									<mainClass>com.lunex.httpproxy.HttpProxyLauncher</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>

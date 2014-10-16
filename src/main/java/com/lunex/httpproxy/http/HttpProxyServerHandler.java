@@ -49,9 +49,9 @@ import com.lunex.httpproxy.util.MetricObjectQueue;
 /**
  * Server handler for netty server
  */
-public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
+public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
-  static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopServerHandler.class);
+  static final Logger logger = LoggerFactory.getLogger(HttpProxyServerHandler.class);
   private RouteInfo selectedRoute;
   private long metricStartTime = 0;
   private String statusResponse;
@@ -67,7 +67,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
   private LogObject logObject;
 
-  public HttpProxySnoopServerHandler() {}
+  public HttpProxyServerHandler() {}
 
   @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -164,7 +164,7 @@ public class HttpProxySnoopServerHandler extends SimpleChannelInboundHandler<Htt
     }
     logObject.setTarget(target.toString());
 
-    HttpProxySnoopClient client = new HttpProxySnoopClient(target, new CallbackHTTPVisitor() {
+    HttpProxyClient client = new HttpProxyClient(target, new CallbackHTTPVisitor() {
       @Override
       public void doJob(ChannelHandlerContext ctx, HttpObject msg) {
         super.doJob(ctx, msg);

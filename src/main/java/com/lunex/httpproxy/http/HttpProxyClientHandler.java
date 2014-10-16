@@ -14,10 +14,10 @@ import io.netty.handler.codec.http.LastHttpContent;
 /**
  * Handler for netty client.
  */
-public class HttpProxySnoopClientHandler extends SimpleChannelInboundHandler<HttpObject> {
+public class HttpProxyClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
   /** The Constant logger. */
-  static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopClientHandler.class);
+  static final Logger logger = LoggerFactory.getLogger(HttpProxyClientHandler.class);
 
   /** The callback. */
   private CallbackHTTPVisitor callback;
@@ -27,7 +27,7 @@ public class HttpProxySnoopClientHandler extends SimpleChannelInboundHandler<Htt
    *
    * @param callback the callback
    */
-  public HttpProxySnoopClientHandler(CallbackHTTPVisitor callback) {
+  public HttpProxyClientHandler(CallbackHTTPVisitor callback) {
     this.callback = callback;
   }
 

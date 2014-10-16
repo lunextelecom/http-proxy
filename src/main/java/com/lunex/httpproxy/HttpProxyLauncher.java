@@ -13,27 +13,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.lunex.httpproxy.http.HttpProxySnoopServer;
+import com.lunex.httpproxy.http.HttpProxyServer;
 import com.lunex.httpproxy.http.admin.HttpProxyAdminServer;
 import com.lunex.httpproxy.scheduler.JobScheduler;
 import com.lunex.httpproxy.util.Configuration;
 
 
 /**
- * The Class App.
+ * The Class HttpProxyLauncher.
  */
-public class App {
+public class HttpProxyLauncher {
 
   /** The Constant logger. */
-  static final Logger logger = LoggerFactory.getLogger(App.class);
+  static final Logger logger = LoggerFactory.getLogger(HttpProxyLauncher.class);
   
   /** The server. */
-  private static HttpProxySnoopServer server;
+  private static HttpProxyServer server;
   
   /** The admin */
   private static HttpProxyAdminServer admin;
   
-  private static final String OPTION_APP = "a";
+  private static final String OPTION_PROXY = "p";
 
   private static final String OPTION_CONFIG = "c";
 
@@ -46,7 +46,7 @@ public class App {
    */
   public static void main(String[] args) {
     final Options options = new Options();
-    options.addOption(null, OPTION_APP, true, "app.properties: cassandra, metric, port, admin port....");
+    options.addOption(null, OPTION_PROXY, true, "proxy.properties");
     options.addOption(null, OPTION_CONFIG, true, "configuration.yaml: servers, routes info");
     options.addOption(null, OPTION_HELP, false, "Display command line help.");
     final CommandLineParser parser = new PosixParser();
@@ -61,15 +61,15 @@ public class App {
       printHelp(options, "Could not parse command line: " + Arrays.asList(args));
       return;
     }
-    if (cmd.hasOption(OPTION_HELP) || !cmd.hasOption(OPTION_APP) || !cmd.hasOption(OPTION_CONFIG)) {
+    if (cmd.hasOption(OPTION_HELP) || !cmd.hasOption(OPTION_PROXY) || !cmd.hasOption(OPTION_CONFIG)) {
       printHelp(options, null);
       return;
     }
     
-    String appConfig = cmd.getOptionValue(OPTION_APP);
-    String proxyConfig = cmd.getOptionValue(OPTION_CONFIG);
+    String proxyConfig = cmd.getOptionValue(OPTION_PROXY);
+    String routeConfig = cmd.getOptionValue(OPTION_CONFIG);
     try {
-      Configuration.loadConfig(appConfig, proxyConfig);
+      Configuration.loadConfig(proxyConfig, routeConfig);
       startHttpProxy();
       startAdmin();
       JobScheduler.run();
@@ -88,7 +88,7 @@ public class App {
       logger.error("Can not load config or config invalid", new NullPointerException());
       return;
     }
-    server = new HttpProxySnoopServer(Configuration.getProxyPort());
+    server = new HttpProxyServer(Configuration.getProxyPort());
     Thread thread = new Thread(new Runnable() {
 
       public void run() {

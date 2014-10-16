@@ -1,0 +1,1 @@
+CREATE KEYSPACE http_proxy WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 };

@@ -15,16 +15,16 @@ import org.slf4j.LoggerFactory;
 
 import com.lunex.httpproxy.util.HostAndPort;
 
-public class HttpProxySnoopClient {
+public class HttpProxyClient {
 
-  static final Logger logger = LoggerFactory.getLogger(HttpProxySnoopClient.class);
+  static final Logger logger = LoggerFactory.getLogger(HttpProxyClient.class);
 
   private HostAndPort address;
   public CallbackHTTPVisitor callback;
   public Object msg;
   public Channel ch;
   public EventLoopGroup group;
-  public HttpProxySnoopClient(HostAndPort address, CallbackHTTPVisitor callback) {
+  public HttpProxyClient(HostAndPort address, CallbackHTTPVisitor callback) {
     this.address = address;
     this.callback = callback;
   }
@@ -56,7 +56,7 @@ public class HttpProxySnoopClient {
       .option(ChannelOption.TCP_NODELAY, true)
       .option(ChannelOption.SO_SNDBUF, 1048576)
       .option(ChannelOption.SO_RCVBUF, 1048576)
-      .handler(new HttpProxySnoopClientInitializer(callback));
+      .handler(new HttpProxyClientInitializer(callback));
       // Make the connection attempt.
       ch = b.connect(address.getHost(), address.getPort()).sync().channel();
       // Send the HTTP request.
