@@ -78,28 +78,16 @@ public class CassandraRepository {
 
       instance.session = instance.cluster.connect();
       Metadata metadata =  instance.cluster.getMetadata();
-      KeyspaceMetadata keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
-      if (keyspaceMetadata == null) {
-        String sql =
-            "CREATE KEYSPACE " + instance.keyspace + " WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 }";
-        instance.session.execute(sql);
-        metadata = instance.cluster.getMetadata();
-        keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
-      }
       if (metadata != null) {
-        keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
+        KeyspaceMetadata keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
         if (keyspaceMetadata == null) {
           throw new UnsupportedOperationException("Can't find keyspace :" + instance.keyspace);
         }
         if (keyspaceMetadata.getTable("logging") == null) {
-          String sql =
-              "CREATE TABLE " + instance.keyspace + ".logging (target text, url text, updateid timeuuid, client text, method text, request_header text, request_body text, response_body text, PRIMARY KEY (target, url, updateid)) WITH CLUSTERING ORDER BY (url ASC, updateid DESC)";
-          instance.session.execute(sql);
+          throw new UnsupportedOperationException("Can't find table logging in " + instance.keyspace);
         }
         if (keyspaceMetadata.getTable("endpoint") == null) {
-          String sql =
-              "CREATE TABLE " + instance.keyspace + ".endpoint (target text, status int, updateid timeuuid, PRIMARY KEY (target))";
-          instance.session.execute(sql);
+          throw new UnsupportedOperationException("Can't find table endpoint in " + instance.keyspace);
         }
         
       }
