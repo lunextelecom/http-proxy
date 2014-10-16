@@ -13,9 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.lunex.httpproxy.http.HttpProxyServer;
-import com.lunex.httpproxy.http.admin.HttpProxyAdminServer;
-import com.lunex.httpproxy.scheduler.JobScheduler;
 import com.lunex.httpproxy.util.Configuration;
 
 
@@ -26,12 +23,6 @@ public class QueueLauncher {
 
   /** The Constant logger. */
   static final Logger logger = LoggerFactory.getLogger(QueueLauncher.class);
-  
-  /** The server. */
-  private static HttpProxyServer server;
-  
-  /** The admin */
-  private static HttpProxyAdminServer admin;
   
   private static final String OPTION_APP = "a";
 
@@ -71,50 +62,6 @@ public class QueueLauncher {
       logger.error(e.getMessage());
     }
     
-  }
-
-  /**
-   * Start netty server as HTTP proxy.
-   */
-  public static void startHttpProxy() {
-    if (Configuration.getProxyRule().getRoutes() == null || Configuration.getProxyRule().getRoutes().isEmpty() || Configuration.getProxyPort() <= 0) {
-      logger.error("Can not load config or config invalid", new NullPointerException());
-      return;
-    }
-    server = new HttpProxyServer(Configuration.getProxyPort());
-    Thread thread = new Thread(new Runnable() {
-
-      public void run() {
-        try {
-          server.startServer();
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    });
-    thread.start();
-  }
-  
-  /**
-   * Start admin
-   */
-  public static void startAdmin() {
-    if (Configuration.getProxyAdminPort() <= 0) {
-      logger.error("Can not load config or config invalid", new NullPointerException());
-      return;
-    }
-    admin = new HttpProxyAdminServer(Configuration.getProxyAdminPort());
-    Thread thread = new Thread(new Runnable() {
-
-      public void run() {
-        try {
-          admin.startServer();
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    });
-    thread.start();
   }
   
   private static void printHelp(final Options options, final String errorMessage) {
