@@ -33,6 +33,8 @@ public class HttpProxyLauncher {
   /** The admin */
   private static HttpProxyAdminServer admin;
   
+  private static final String OPTION_APP = "a";
+  
   private static final String OPTION_PROXY = "p";
 
   private static final String OPTION_CONFIG = "c";
@@ -46,6 +48,7 @@ public class HttpProxyLauncher {
    */
   public static void main(String[] args) {
     final Options options = new Options();
+    options.addOption(null, OPTION_APP, true, "queue.properties: cassandra, metric");
     options.addOption(null, OPTION_PROXY, true, "proxy.properties");
     options.addOption(null, OPTION_CONFIG, true, "configuration.yaml: servers, routes info");
     options.addOption(null, OPTION_HELP, false, "Display command line help.");
@@ -61,15 +64,16 @@ public class HttpProxyLauncher {
       printHelp(options, "Could not parse command line: " + Arrays.asList(args));
       return;
     }
-    if (cmd.hasOption(OPTION_HELP) || !cmd.hasOption(OPTION_PROXY) || !cmd.hasOption(OPTION_CONFIG)) {
+    if (cmd.hasOption(OPTION_HELP) || !cmd.hasOption(OPTION_PROXY) || !cmd.hasOption(OPTION_APP)  || !cmd.hasOption(OPTION_CONFIG)) {
       printHelp(options, null);
       return;
     }
     
+    String appConfig = cmd.getOptionValue(OPTION_APP);
     String proxyConfig = cmd.getOptionValue(OPTION_PROXY);
     String routeConfig = cmd.getOptionValue(OPTION_CONFIG);
     try {
-      Configuration.loadConfig(proxyConfig, routeConfig);
+      Configuration.loadConfig(appConfig, proxyConfig, routeConfig);
       startHttpProxy();
       startAdmin();
       JobScheduler.run();

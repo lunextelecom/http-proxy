@@ -1,10 +1,14 @@
 #!/bin/bash
 DEPLOY_DIR=$(dirname $0)/..
 PARGS=$@
+APP=$(echo "$PARGS" | sed -r 's/.*-a ([^ ]+).*/\1/g')
 PROXY=$(echo "$PARGS" | sed -r 's/.*-p ([^ ]+).*/\1/g')
 CONF=$(echo "$PARGS" | sed -r 's/.*-c ([^ ]+).*/\1/g')
 LOG=$(echo "$PARGS" | sed -r 's/.*-l ([^ ]+).*/\1/g')
 
+if [ -z "$APP" ]; then
+        APP=$DEPLOY_DIR/conf/queue.properties
+fi
 
 if [ -z "$PROXY" ]; then
         PROXY=$DEPLOY_DIR/conf/proxy.properties
@@ -15,6 +19,13 @@ fi
 if [ -z "$LOG" ]; then
         LOG=$DEPLOY_DIR/conf/log4j.properties
 fi
+
+f=$APP
+if [ -d "$f" ]; then f=$f/.; fi
+absolute=$(cd "$(dirname -- "$f")"; printf %s. "$PWD")
+absolute=${absolute%?}
+absolute=$absolute/${f##*/}
+APP=$absolute
 
 f=$PROXY
 if [ -d "$f" ]; then f=$f/.; fi
@@ -37,4 +48,4 @@ absolute=${absolute%?}
 absolute=$absolute/${f##*/}
 LOG=$absolute
 
-java -jar -Xms2500m -Xmx2500m -Dlog4j.configuration=file:$LOG $DEPLOY_DIR/lib/http-proxy-1.0-SNAPSHOT.jar -p $PROXY -c $CONF
+java -jar -Xms2500m -Xmx2500m -Dlog4j.configuration=file:$LOG $DEPLOY_DIR/lib/http-proxy-1.0-SNAPSHOT.jar -a $APP -p $PROXY -c $CONF

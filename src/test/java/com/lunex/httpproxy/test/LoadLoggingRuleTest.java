@@ -16,7 +16,7 @@ public class LoadLoggingRuleTest {
   public static void oneTimeSetUp() throws Exception {
     // one-time initialization code
     System.out.println("@BeforeClass - oneTimeSetUp");
-    Configuration.loadConfig("conf/app.properties", "conf/configuration.properties");
+    Configuration.loadConfig("conf/queue.properties", "conf/porxy.properties", "conf/configuration.properties");
   }
   
   @Test

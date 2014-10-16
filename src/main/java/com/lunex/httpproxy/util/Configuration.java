@@ -140,7 +140,7 @@ public class Configuration {
    *
    * @param proxyConf the app file name
    */
-  public static void loadConfig(String proxyConf, String configFilename) throws Exception{
+  public static void loadConfig(String appConf, String proxyConf, String configFilename) throws Exception{
     //init producer
     try {
       producer = new Producer(queueName);
@@ -154,6 +154,13 @@ public class Configuration {
     proxyNumThread = ParameterHandler.HTTP_PROXY_NUM_THREAD;
     scheduleTime = ParameterHandler.HTTP_PROXY_SCHEDULE_TIME;
     proxyConfigName = configFilename;
+    ParameterHandler.getAppProps(appConf);
+    host = ParameterHandler.DB_HOST;
+    keyspace = ParameterHandler.DB_DBNAME;
+    metricHost = ParameterHandler.METRIC_HOST;
+    metricPort = ParameterHandler.METRIC_PORT;
+    //load cassandra
+    CassandraRepository.getInstance();
     //load config
     reloadConfig();
   }
