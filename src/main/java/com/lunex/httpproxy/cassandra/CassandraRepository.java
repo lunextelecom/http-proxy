@@ -97,7 +97,6 @@ public class CassandraRepository {
 
   /**
    * Close connect
-   * 
    * @return
    */
   public boolean closeConnection() {
