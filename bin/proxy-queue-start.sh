@@ -6,7 +6,7 @@ LOG=$(echo "$PARGS" | sed -r 's/.*-l ([^ ]+).*/\1/g')
 
 
 if [ -z "$APP" ]; then
-        APP=$DEPLOY_DIR/conf/app.properties
+        APP=$DEPLOY_DIR/conf/queue.properties
 fi
 
 if [ -z "$LOG" ]; then
