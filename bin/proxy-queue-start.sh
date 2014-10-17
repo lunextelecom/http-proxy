@@ -54,4 +54,4 @@ absolute=${absolute%?}
 absolute=$absolute/${f##*/}
 LOG=$absolute
  
-java -Xms1G -Xmx1G -Dlog4j.configuration=file:$LOG -cp $DEPLOY_DIR/lib/http-proxy-1.0-SNAPSHOT.jar com.lunex.httpproxy.QueueLauncher -a $APP
+exec java -Xms1G -Xmx1G -Dlog4j.configuration=file:$LOG -cp $DEPLOY_DIR/lib/http-proxy-1.0-SNAPSHOT.jar com.lunex.httpproxy.QueueLauncher -a $APP
