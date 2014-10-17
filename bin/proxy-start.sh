@@ -1,10 +1,36 @@
 #!/bin/bash
 DEPLOY_DIR=$(dirname $0)/..
-PARGS=$@
-APP=$(echo "$PARGS" | sed -r 's/.*-a ([^ ]+).*/\1/g')
-PROXY=$(echo "$PARGS" | sed -r 's/.*-p ([^ ]+).*/\1/g')
-CONF=$(echo "$PARGS" | sed -r 's/.*-c ([^ ]+).*/\1/g')
-LOG=$(echo "$PARGS" | sed -r 's/.*-l ([^ ]+).*/\1/g')
+while [[ $# > 1 ]]
+do
+key="$1"
+shift
+
+case $key in
+    -a)
+    APP="$1"
+    shift
+    ;;
+    -p)
+    PROXY="$1"
+    shift
+    ;;
+    -c)
+    CONF="$1"
+    shift
+    ;;
+    -l)
+    LOG="$1"
+    shift
+    ;;
+    --default)
+    DEFAULT=YES
+    shift
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
+done
 
 if [ -z "$APP" ]; then
         APP=$DEPLOY_DIR/conf/queue.properties
