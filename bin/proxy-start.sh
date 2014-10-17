@@ -74,4 +74,4 @@ absolute=${absolute%?}
 absolute=$absolute/${f##*/}
 LOG=$absolute
 
-java -jar -Xms2500m -Xmx2500m -Dlog4j.configuration=file:$LOG $DEPLOY_DIR/lib/http-proxy-1.0-SNAPSHOT.jar -a $APP -p $PROXY -c $CONF
+exec java -jar -Xms2500m -Xmx2500m -Dlog4j.configuration=file:$LOG $DEPLOY_DIR/lib/http-proxy-1.0-SNAPSHOT.jar -a $APP -p $PROXY -c $CONF
