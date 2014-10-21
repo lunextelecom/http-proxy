@@ -71,20 +71,22 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
 
   @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
-    // write response
-    if (isException) {
-      exceptionCaught(ctx, exception);
-      return;
-    }
-    if (!writeResponse(ctx)) {
-      // If keep-alive is off, close the connection once the content is fully written.
-      ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-    } else {
-      ctx.flush();
-    }
-    ctx.disconnect();
-    if(selectedRoute != null){
-      this.processLogging();
+    if(request != null){
+      // write response
+      if (isException) {
+        exceptionCaught(ctx, exception);
+        return;
+      }
+      if (!writeResponse(ctx)) {
+        // If keep-alive is off, close the connection once the content is fully written.
+        ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+      } else {
+        ctx.flush();
+      }
+      ctx.disconnect();
+      if(selectedRoute != null){
+        this.processLogging();
+      }
     }
   }
 
