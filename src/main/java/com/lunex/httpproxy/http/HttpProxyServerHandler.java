@@ -114,7 +114,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
         logObject.setClient(address.toString());
       }else{
         isException = true;
-        exception = new InternalServerErrorException(new Exception("Can't find any available server for this request"));
+        exception = new InternalServerErrorException(new Exception("Can't find any available route for this request"));
         return;
       }
     }
