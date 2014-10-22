@@ -224,7 +224,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
    * @return
    */
   private boolean writeResponse(ChannelHandlerContext ctx) {
-    logger.info("Write response");
+    logger.debug("Write response");
     // Decide whether to close the connection or not.
     boolean keepAlive = false;
     try {
