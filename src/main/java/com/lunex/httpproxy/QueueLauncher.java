@@ -67,7 +67,7 @@ public class QueueLauncher {
       System.err.println(errorMessage);
     }
     final HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("http-proxy", options);
+    formatter.printHelp("http-proxy-queue", options);
   }
 
 }

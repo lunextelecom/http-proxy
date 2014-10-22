@@ -57,16 +57,16 @@ public class QueueConsumer extends EndPoint implements Runnable, Consumer {
       throws IOException {
     Object obj = (Object) SerializationUtils.deserialize(body);
     if (obj instanceof MetricObjectQueue) {
-      logger.info("received MetricObjectQueue");
+      logger.debug("received MetricObjectQueue");
       MetricObjectQueue objInfo = (MetricObjectQueue) obj;
       Statsd statsd = Statsd.start(objInfo.getMetric(), objInfo.getMetricStartTime(), Configuration.getMetricHost(), Configuration.getMetricPort());
       statsd.stop(objInfo.getStatusResponse(), objInfo.getMetricStopTime());
     }else if (obj instanceof EndpointObject) {
-      logger.info("received EndpointObject");
+      logger.debug("received EndpointObject");
       EndpointObject objInfo = (EndpointObject) obj;
       updateEndpoint(objInfo);
     } else {
-      logger.info("received LogObjectQueue");
+      logger.debug("received LogObjectQueue");
       LogObjectQueue objInfo = (LogObjectQueue) obj;
       LoggingProcessor.writeLogging(objInfo.getMethodName(), objInfo.getLogObject(), objInfo.getSelectedRoute());
     }

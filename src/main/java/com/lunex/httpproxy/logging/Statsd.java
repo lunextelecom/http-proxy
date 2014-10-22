@@ -98,7 +98,7 @@ public class Statsd {
       this.client.time(aspect, t);
       try {
         this.client.stop();
-        logger.info("statsd.stop {} {}", aspect, t);
+        logger.debug("statsd.stop {} {}", aspect, t);
       } catch (Exception ex) {
       }
       return t;
@@ -111,7 +111,7 @@ public class Statsd {
       this.client.time(aspect, t);
       try {
         this.client.stop();
-        logger.info("statsd.stop {} {}", aspect, t);
+        logger.debug("statsd.stop {} {}", aspect, t);
       } catch (Exception ex) {
       }
       return t;

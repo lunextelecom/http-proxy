@@ -37,6 +37,7 @@ import com.google.common.base.Strings;
 import com.lunex.httpproxy.balancing.BalancingStrategy;
 import com.lunex.httpproxy.exceptions.BadRequestException;
 import com.lunex.httpproxy.exceptions.InternalServerErrorException;
+import com.lunex.httpproxy.exceptions.NotFoundErrorException;
 import com.lunex.httpproxy.rule.RouteInfo;
 import com.lunex.httpproxy.rule.RouteInfo.Verb;
 import com.lunex.httpproxy.rule.ServerInfo;
@@ -87,6 +88,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
       if(selectedRoute != null){
         this.processLogging();
       }
+      logger.info("Finish process request : " + request.getUri());
     }
   }
 
@@ -94,6 +96,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
   protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
     if (msg instanceof HttpRequest) {
       this.request = (HttpRequest) msg;
+      logger.info("Receive request :" + this.request.getUri());
       Channel channel = ctx.channel();
       SocketAddress address = channel.remoteAddress();
 
@@ -105,7 +108,9 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
           Configuration.getMapUrlRoute().put(this.request.getUri(), selectedRoute);
         }
       }
+
       if(selectedRoute != null){
+        logger.info("Endpoint: " + selectedRoute.getServer() + ", route: " + selectedRoute.getName() + ", pattern " + selectedRoute.getPattern().toString() + ", request : "+ this.request.getUri());
         responseContentBuilder.setLength(0);
         logObject = new LogObject();
         logObject.setRequest(this.request.getUri());
@@ -114,7 +119,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
         logObject.setClient(address.toString());
       }else{
         isException = true;
-        exception = new InternalServerErrorException(new Exception("Can't find any available route for this request"));
+        exception = new NotFoundErrorException(new Exception("Can't find any available routes for this request : " + this.request.getUri()));
         return;
       }
     }
@@ -158,10 +163,8 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
       }
     }
     if (target == null) {
-      logger.error("target is null");
-      responseContentBuilder.append("Target is null");
       isException = true;
-      exception = new InternalServerErrorException(new Exception("Can't find any available server for this request"));
+      exception = new InternalServerErrorException(new Exception("Can't find any available servers for this request :" + request.getUri()));
       return;
     }
     logObject.setTarget(target.toString());
@@ -207,7 +210,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
     try {
       responseWaiter.await(60, TimeUnit.SECONDS);
       client.shutdown();
-      logger.info("Shutdown client");
+      logger.debug("Shutdown client");
     } catch (Exception e) {
       logger.error(e.getMessage());
     }
@@ -270,7 +273,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
           obj.setMetricStopTime(System.currentTimeMillis());
           obj.setStatusResponse(statusResponse);
           try {
-            logger.info("send MetricObjectQueue message");
+            logger.debug("send MetricObjectQueue message");
             Configuration.getProducer().sendMessage(obj);
           } catch (IOException e) {
             logger.error("sendMessage error ", e);
@@ -284,7 +287,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
         obj.setMethodName(method.name());
         obj.setSelectedRoute(selectedRoute);
         try {
-          logger.info("send LogObjectQueue message");
+          logger.debug("send LogObjectQueue message");
           Configuration.getProducer().sendMessage(obj);
         } catch (IOException e) {
           logger.error("sendMessage error ", e);
@@ -297,7 +300,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     logger.error("Exception caught", cause);
 
-    HttpResponseStatus status =  (cause instanceof BadRequestException) ? BAD_REQUEST : INTERNAL_SERVER_ERROR;
+    HttpResponseStatus status =  (cause instanceof BadRequestException) ? BAD_REQUEST : (cause instanceof NotFoundErrorException)? HttpResponseStatus.NOT_FOUND: INTERNAL_SERVER_ERROR;
     String content = cause.getMessage();
     FullHttpResponse response =
         new DefaultFullHttpResponse(HTTP_1_1, status, Unpooled.copiedBuffer(content,

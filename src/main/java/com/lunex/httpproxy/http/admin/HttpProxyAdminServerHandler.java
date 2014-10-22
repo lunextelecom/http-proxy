@@ -109,13 +109,13 @@ public class HttpProxyAdminServerHandler extends SimpleChannelInboundHandler<Htt
     String username = this.request.headers().get(Constants.USERNAME_PRO);
     String password = this.request.headers().get(Constants.PASSWORD_PRO);
     if (Strings.isNullOrEmpty(username) || Strings.isNullOrEmpty(password)) {
-      logger.info("authenticate failed");
+      logger.error("authenticate failed");
       exception = new BadRequestException(new Exception("authenticate failed"));
       res = false;
     } else {
       if (!Constants.AUTH_STR.equalsIgnoreCase(username)
           || !Constants.AUTH_STR.equalsIgnoreCase(password)) {
-        logger.info("authenticate failed");
+        logger.error("authenticate failed");
         exception = new BadRequestException(new Exception("authenticate failed"));
         res = false;
       }
@@ -162,7 +162,7 @@ public class HttpProxyAdminServerHandler extends SimpleChannelInboundHandler<Htt
       }
       matcher = Configuration.getReloadPattern().matcher(this.request.getUri());
       if(!matcher.find()){
-        exception = new BadRequestException(new Exception("unknow command"));
+        exception = new BadRequestException(new Exception("unknow command : " + this.request.getUri()));
         function = AdminFunction.EXCEPTION;
         return;
       }

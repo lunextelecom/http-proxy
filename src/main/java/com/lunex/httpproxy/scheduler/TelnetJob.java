@@ -31,7 +31,7 @@ public class TelnetJob implements Job {
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
   public void execute(JobExecutionContext jExeCtx) throws JobExecutionException {
-    log.info("start telnet job");
+    log.debug("start telnet job");
     ProxyRule proxyRule = Configuration.getProxyRule();
     if (proxyRule != null) {
       for (RouteInfo rule : proxyRule.getRoutes()) {
@@ -47,12 +47,15 @@ public class TelnetJob implements Job {
               for (HostAndPort item : targets) {
                 boolean oldStatus = item.isAlive();
                 boolean status = checkStatus(item, health, oldStatus);
+                if(status){
+                  log.debug("Can not connected with ip " + item.getHost() + " and port " + item.getPort());
+                }else{
+                  log.debug("Connected with ip " + item.getHost() + " and port " + item.getPort());
+                }
                 if (!status & oldStatus) {
                   item.setAlive(false);
-                  log.info("Can not connected with ip " + item.getHost() + " and port " + item.getPort());
                   updateEndpoint(item, EndpointStatus.DOWN);
                 } else if (status & !oldStatus) {
-                  log.info("Connected with ip " + item.getHost() + " and port " + item.getPort());
                   item.setAlive(true);
                   updateEndpoint(item, EndpointStatus.ALIVE);
                 }else{
@@ -67,7 +70,7 @@ public class TelnetJob implements Job {
         }
       }
     }
-    log.info("end telnet job");
+    log.debug("end telnet job");
   }
   private boolean checkStatus(HostAndPort item, String health, boolean oldStatus){
     boolean status = false;
@@ -98,7 +101,7 @@ public class TelnetJob implements Job {
     try {
       EndpointObject endpointObject =new EndpointObject(item.toString(), status);
       try {
-        log.info("send EndpointObject message");
+        log.debug("send EndpointObject message");
         Configuration.getProducer().sendMessage(endpointObject);
       } catch (IOException e) {
         log.error("sendMessage error ", e);
