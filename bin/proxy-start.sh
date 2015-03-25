@@ -33,7 +33,7 @@ esac
 done
 
 if [ -z "$APP" ]; then
-        APP=$DEPLOY_DIR/conf/queue.properties
+        APP=$DEPLOY_DIR/conf/app.properties
 fi
 
 if [ -z "$PROXY" ]; then

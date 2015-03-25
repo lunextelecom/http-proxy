@@ -29,10 +29,10 @@ routes:
     - name: AtsService
       url: "GET /AtsService.svc/.*"
       server: ATSServiceServer
-      logging: req(*)  
+      logging: req(*), resp_body(*)
 
     - name: PosService
       url: "GET /PosService.svc/.*"
       server: POSServiceServer
-      logging: req(*)
+      logging: req(*), resp_body(*)
   

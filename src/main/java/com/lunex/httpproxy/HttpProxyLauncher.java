@@ -48,7 +48,7 @@ public class HttpProxyLauncher {
    */
   public static void main(String[] args) {
     final Options options = new Options();
-    options.addOption(null, OPTION_APP, true, "queue.properties: cassandra, metric");
+    options.addOption(null, OPTION_APP, true, "app.properties: cassandra, metric");
     options.addOption(null, OPTION_PROXY, true, "proxy.properties");
     options.addOption(null, OPTION_CONFIG, true, "configuration.yaml: servers, routes info");
     options.addOption(null, OPTION_HELP, false, "Display command line help.");

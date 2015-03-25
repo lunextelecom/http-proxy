@@ -75,7 +75,9 @@ public class CassandraRepository {
                       DowngradingConsistencyRetryPolicy.INSTANCE)
               .withReconnectionPolicy(
                       new ConstantReconnectionPolicy(100L)).build();
-
+    //test
+      instance.cluster.getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
+      //
       instance.session = instance.cluster.connect();
       Metadata metadata =  instance.cluster.getMetadata();
       if (metadata != null) {
