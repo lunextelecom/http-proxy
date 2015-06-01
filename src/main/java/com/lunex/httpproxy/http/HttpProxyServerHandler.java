@@ -225,30 +225,32 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<HttpObje
    */
   private boolean writeResponse(ChannelHandlerContext ctx) {
     logger.debug("Write response");
-    // Decide whether to close the connection or not.
     boolean keepAlive = false;
-    try {
-      keepAlive = isKeepAlive(request);
-    } catch (Exception e) {
-      keepAlive = false;
+    if(ctx.channel().isOpen()){
+      // Decide whether to close the connection or not.
+      try {
+        keepAlive = isKeepAlive(request);
+      } catch (Exception e) {
+        keepAlive = false;
+      }
+      // Build the response object.
+      FullHttpResponse response =
+          new DefaultFullHttpResponse(defaultHttpResponse.getProtocolVersion(),
+              defaultHttpResponse.getStatus(), Unpooled.copiedBuffer(
+                  responseContentBuilder.toString(), CharsetUtil.UTF_8));
+      response.headers().set(CONTENT_TYPE, defaultHttpResponse.headers().get("Content-Type"));
+      
+      if (keepAlive) {
+        // Add 'Content-Length' header only for a keep-alive connection.
+        response.headers().set(CONTENT_LENGTH, response.content().readableBytes());
+        // Add keep alive header as per:
+        // http://www.w3.org/Protocols/HTTP/1.1/draft-ietf-http-v11-spec-01.html#Connection
+        response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+      }
+      
+      // Write the response.
+      ctx.writeAndFlush(response);
     }
-    // Build the response object.
-    FullHttpResponse response =
-        new DefaultFullHttpResponse(defaultHttpResponse.getProtocolVersion(),
-            defaultHttpResponse.getStatus(), Unpooled.copiedBuffer(
-                responseContentBuilder.toString(), CharsetUtil.UTF_8));
-    response.headers().set(CONTENT_TYPE, defaultHttpResponse.headers().get("Content-Type"));
-
-    if (keepAlive) {
-      // Add 'Content-Length' header only for a keep-alive connection.
-      response.headers().set(CONTENT_LENGTH, response.content().readableBytes());
-      // Add keep alive header as per:
-      // http://www.w3.org/Protocols/HTTP/1.1/draft-ietf-http-v11-spec-01.html#Connection
-      response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-    }
-
-    // Write the response.
-    ctx.writeAndFlush(response);
     
     return keepAlive;
   }
